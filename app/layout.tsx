@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./landing-theme.css";
 
 export const metadata: Metadata = {
   title: "RV Solutions | Rolando Victorio",

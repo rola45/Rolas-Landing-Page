@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { CSSProperties, ReactNode } from "react";
-import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Check, Code2, Cpu, ExternalLink, Globe2, MessageCircle, MonitorCog, Sparkles, Wrench } from "lucide-react";
+import type { CSSProperties, MouseEvent, ReactNode } from "react";
+import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Code2, Cpu, ExternalLink, Globe2, MessageCircle, MonitorCog, Sparkles, Wrench } from "lucide-react";
 import type { SiteContent } from "@/lib/content-types";
 import { LeadForm } from "@/app/components/lead-form";
 import { ScrollEffects } from "@/app/components/scroll-effects";
@@ -16,6 +16,7 @@ function visibleSections(content: SiteContent) {
 function Header({ content, sections }: { content: SiteContent; sections: string[] }) {
   const labels: Record<string, string> = { services: "Servicios", about: "Sobre mí", portfolio: "Proyectos", process: "Proceso", faq: "Preguntas", contact: "Contacto" };
   const sectionId: Record<string, string> = { services: "servicios", about: "sobre-mi", portfolio: "proyectos", process: "proceso", faq: "preguntas", contact: "contacto" };
+  const closeMobileMenu = (event: MouseEvent<HTMLAnchorElement>) => { const menu = event.currentTarget.closest("details"); if (menu) menu.open = false; };
   return <header className="site-header">
     <a className="brand-lockup" href="#inicio" aria-label={`${content.brandName}, inicio`}>
       <span className="brand-mark">RV<span>.</span></span>
@@ -29,8 +30,8 @@ function Header({ content, sections }: { content: SiteContent; sections: string[
       <details className="mobile-menu">
         <summary aria-label="Abrir menú de navegación"><span></span><span></span></summary>
         <nav aria-label="Navegación móvil">
-          {sections.map((section) => <a key={section} href={`#${sectionId[section]}`}>{labels[section]}</a>)}
-          <a className="mobile-cta" href="#contacto">Solicitar cotización <ArrowUpRight size={16} /></a>
+          {sections.map((section) => <a key={section} href={`#${sectionId[section]}`} onClick={closeMobileMenu}>{labels[section]}</a>)}
+          <a className="mobile-cta" href="#contacto" onClick={closeMobileMenu}>Solicitar cotización <ArrowUpRight size={16} /></a>
         </nav>
       </details>
     </div>
@@ -39,30 +40,35 @@ function Header({ content, sections }: { content: SiteContent; sections: string[
 
 function Eyebrow({ children }: { children: ReactNode }) { return <p className="eyebrow"><span className="eyebrow-dot" />{children}</p>; }
 
-function Hero({ content }: { content: SiteContent }) {
+function Hero({ content, apiBase }: { content: SiteContent; apiBase: string }) {
   return <section id="inicio" className="hero-section">
     <div className="hero-grid">
       <div className="hero-copy" data-reveal>
         <Eyebrow>{content.heroEyebrow}</Eyebrow>
-        <h1>{content.displayName}<span className="hero-name-period">.</span></h1>
-        <p className="hero-role">{content.role}</p>
+        <p className="hero-attribution"><span>{content.displayName}</span><span aria-hidden="true"> — </span>{content.role}</p>
+        <h1>{content.heroTitle}</h1>
         <p className="hero-description">{content.heroDescription}</p>
         <div className="hero-actions">
           <a className="button button-electric" href="#contacto">{content.heroCta}<ArrowUpRight size={17} aria-hidden="true" /></a>
           <a className="button button-quiet" href="#servicios">Conocer servicios<ArrowDown size={15} aria-hidden="true" /></a>
         </div>
-        <div className="hero-trustline"><span className="status-pulse" /> Atención directa, soluciones a tu medida</div>
       </div>
-      <div className="hero-visual" data-parallax aria-hidden="true">
-        <div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" />
-        <div className="hero-core"><span>RV</span><i /></div>
-        <div className="floating-card floating-code"><span className="visual-label">DESARROLLO DIGITAL</span><div className="code-dots"><i /><i /><i /></div><div className="code-line long" /><div className="code-line medium" /><div className="code-line short" /><div className="code-line long" /><div className="visual-foot"><Code2 size={14} /> WEB <span>·</span> SISTEMAS <span>·</span> APPS</div></div>
-        <div className="floating-card floating-support"><span className="support-icon"><MonitorCog size={18} /></span><div><b>Soporte técnico</b><small>Mantenimiento y actualización</small></div><span className="support-check"><Check size={14} /></span></div>
-        <div className="visual-corner visual-corner-a" /><div className="visual-corner visual-corner-b" />
-        <span className="visual-index">RV / 01</span>
+      <div className="hero-visual" data-parallax>
+        {content.profileImage ? <figure className="hero-portrait">
+          <img src={resolveMedia(content.profileImage, apiBase)} alt={content.profileImageAlt || `Retrato de ${content.displayName}`} loading="eager" fetchPriority="high" />
+          <figcaption><span>{content.displayName}</span><span>{content.brandName}</span></figcaption>
+        </figure> : <div className="hero-poster" role="img" aria-label={`Composición tipográfica de ${content.brandName}`}>
+          <span className="poster-index">RV / 01</span>
+          <span className="poster-monogram">RV<span>.</span></span>
+          <span className="poster-rule" />
+          <span className="poster-caption">DESARROLLO<br />Y SOPORTE<br /><b>TECNOLÓGICO</b></span>
+          <span className="poster-orbit" />
+          <span className="poster-coordinate">{content.displayName.toUpperCase()}</span>
+        </div>}
+        <div className="hero-visual-meta"><span>{content.brandName}</span><span>DESARROLLO DIGITAL <i /> SOPORTE TÉCNICO</span></div>
       </div>
     </div>
-    <div className="hero-bottom"><span>TECNOLOGÍA, CON INTENCIÓN.</span><a href="#servicios" aria-label="Desplazarse a servicios"><ArrowDownRight size={17} /></a></div>
+    <div className="hero-bottom"><span>DESARROLLO Y SOPORTE TECNOLÓGICO</span><a href="#servicios" aria-label="Desplazarse a servicios"><ArrowDownRight size={17} /></a></div>
   </section>;
 }
 
@@ -74,12 +80,14 @@ const digitalIcons = [Code2, Globe2, Sparkles];
 const supportIcons = [Wrench, MonitorCog, Cpu];
 function ServiceGroup({ title, note, items, group }: { title: string; note: string; items: SiteContent["services"]["digital"]; group: string }) {
   const icons = group === "digital" ? digitalIcons : supportIcons;
-  return <div className="service-group">
+  return <div className={`service-group service-group-${group}`}>
     <div className="service-group-heading" data-reveal><div><span className="group-kicker">{group === "digital" ? "01 / DIGITAL" : "02 / EQUIPOS"}</span><h3>{title}</h3></div><p>{note}</p></div>
-    <div className="service-grid">
-      {items.filter((item) => item.visible).map((item, index) => { const Icon = icons[index % icons.length]; return <article key={item.id} className="service-card" data-reveal style={{ "--reveal-delay": `${index * 75}ms` } as CSSProperties}>
-        <div className="service-card-top"><span className="service-icon"><Icon size={19} strokeWidth={1.7} aria-hidden="true" /></span><span className="service-index">{String(index + 1).padStart(2, "0")}</span></div>
-        <h4>{item.title}</h4><p>{item.description}</p><a href="#contacto" aria-label={`Solicitar información sobre ${item.title}`} className="service-link"><ArrowUpRight size={17} /></a>
+    <div className="service-list">
+      {items.filter((item) => item.visible).map((item, index) => { const Icon = icons[index % icons.length]; return <article key={item.id} className="service-row" data-reveal style={{ "--reveal-delay": `${index * 75}ms` } as CSSProperties}>
+        <span className="service-index">{String(index + 1).padStart(2, "0")}</span>
+        <span className="service-icon"><Icon size={19} strokeWidth={1.7} aria-hidden="true" /></span>
+        <div className="service-copy"><h4>{item.title}</h4><p>{item.description}</p></div>
+        <a href="#contacto" aria-label={`Solicitar información sobre ${item.title}`} className="service-link"><ArrowUpRight size={17} /></a>
       </article>; })}
     </div>
   </div>;
@@ -130,7 +138,7 @@ function Portfolio({ content, apiBase }: { content: SiteContent; apiBase: string
 function Process({ content }: { content: SiteContent }) {
   const steps = content.processSteps.filter((item) => item.visible);
   return <section id="proceso" className="section section-process"><div className="section-shell"><SectionHeader kicker="ASÍ TRABAJAMOS" title={<>Un camino claro,<br /><span>de principio a fin.</span></>} text="Cada proyecto comienza por entender lo que necesitas y avanza con acuerdos claros." />
-    <div className="process-track">{steps.map((item, index) => <article className="process-step" key={item.id} data-reveal style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}><div className="process-marker"><span>{String(index + 1).padStart(2, "0")}</span></div><div className="process-copy"><h3>{item.title}</h3><p>{item.description}</p></div></article>)}</div>
+    <div className="process-track" data-reveal>{steps.map((item, index) => <article className="process-step" key={item.id} style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}><div className="process-marker"><span>{String(index + 1).padStart(2, "0")}</span></div><div className="process-copy"><h3>{item.title}</h3><p>{item.description}</p></div></article>)}</div>
   </div></section>;
 }
 
@@ -183,7 +191,7 @@ export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad"
   return <>
     <ScrollEffects />
     <Header content={liveContent} sections={sections} />
-    <main><Hero content={liveContent} />{sections.map((key) => sectionComponents[key])}</main>
+    <main><Hero content={liveContent} apiBase={apiBase} />{sections.map((key) => sectionComponents[key])}</main>
     <Footer content={liveContent} privacyHref={privacyHref} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
   </>;

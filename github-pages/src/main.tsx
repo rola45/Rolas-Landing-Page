@@ -5,6 +5,7 @@ import { LandingSite } from "../../app/components/landing-site";
 import { DEFAULT_CONTENT } from "../../lib/default-content";
 import type { SiteContent } from "../../lib/content-types";
 import "../../app/globals.css";
+import "../../app/landing-theme.css";
 
 const API_BASE = "https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site";
 const BASE = import.meta.env.BASE_URL;
