@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://rola45.github.io/rv-solutions/sitemap.xml
+Sitemap: https://rola45.github.io/Rolas-Landing-Page/sitemap.xml

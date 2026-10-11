@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 const root = fileURLToPath(new URL("./github-pages", import.meta.url));
 export default defineConfig({
   root,
-  base: "/rv-solutions/",
+  base: "/Rolas-Landing-Page/",
   plugins: [react()],
   resolve: { alias: { "@": resolve(root, "..") } },
   build: {

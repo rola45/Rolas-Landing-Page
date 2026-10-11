@@ -4,7 +4,7 @@ Landing page profesional de Rolando Victorio para presentar servicios de desarro
 
 ## Publicación
 
-- GitHub Pages: `https://rola45.github.io/rv-solutions/`
+- GitHub Pages: `https://rola45.github.io/Rolas-Landing-Page/`
 - Sitio con panel y API: `https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site/`
 - Administración: agregar `/admin` al sitio con panel e iniciar sesión con la cuenta propietaria autorizada.
 - Aviso de privacidad: disponible desde el pie de página de ambos sitios.
@@ -20,7 +20,7 @@ El sitio en GitHub Pages comparte el contenido y el formulario con la API del si
 - `npm run build:pages` crea `pages-dist/` para GitHub Pages.
 - `npm run db:generate` genera migraciones SQL a partir de `db/schema.ts`.
 
-GitHub Actions publica GitHub Pages al actualizar `main`. La base de la landing de Pages es `/rv-solutions/`.
+GitHub Actions publica GitHub Pages al actualizar `main`. La base de la landing de Pages es `/Rolas-Landing-Page/`.
 
 ## Primeros pasos en el panel
 
