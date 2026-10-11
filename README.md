@@ -1,27 +1,16 @@
 # RV Solutions
 
-Landing page profesional de Rolando Victorio para presentar servicios de desarrollo y soporte tecnológico, recibir solicitudes de cotización y editar el contenido desde un panel privado.
+Código privado del sitio principal de Rolando Victorio: panel de administración, almacenamiento de contenido y solicitudes de cotización.
 
-## Publicación
+- Landing pública: https://rola45.github.io/rv-solutions/
+- Interfaz pública estática: https://github.com/rola45/rv-solutions
+- Sitio principal, panel y API: https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site/
+- Panel: agrega `/admin` al dominio principal e inicia sesión con la cuenta autorizada.
 
-- GitHub Pages: `https://rola45.github.io/Rolas-Landing-Page/`
-- Sitio con panel y API: `https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site/`
-- Administración: agregar `/admin` al sitio con panel e iniciar sesión con la cuenta propietaria autorizada.
-- Aviso de privacidad: disponible desde el pie de página de ambos sitios.
-
-El sitio en GitHub Pages comparte el contenido y el formulario con la API del sitio principal. El panel, las solicitudes y las imágenes usan almacenamiento persistente en D1 y R2.
+La landing estática usa la API del sitio principal para mostrar el contenido editado desde el CMS y registrar solicitudes. El repositorio público contiene únicamente los archivos de la interfaz pública; el panel y la API permanecen en este repositorio privado.
 
 ## Desarrollo
 
-- Requiere Node.js 22 o posterior.
-- `npm ci` instala las dependencias.
-- `npm run dev` inicia la vista previa local.
-- `npm run build` prepara el sitio y su API para RV Sites.
-- `npm run build:pages` crea `pages-dist/` para GitHub Pages.
-- `npm run db:generate` genera migraciones SQL a partir de `db/schema.ts`.
+Requiere Node.js 22 o posterior. Ejecuta `npm ci`, `npm run dev`, `npm run build` y `npm run build:pages` según necesites. `npm run db:generate` crea migraciones SQL a partir de `db/schema.ts`.
 
-GitHub Actions publica GitHub Pages al actualizar `main`. La base de la landing de Pages es `/Rolas-Landing-Page/`.
-
-## Primeros pasos en el panel
-
-Después de iniciar sesión, agrega una fotografía real y tus datos de contacto. El campo de WhatsApp permanece vacío hasta configurar el número. Los proyectos están ocultos hasta que agregues uno real y lo publiques. Completa también el domicilio pendiente del aviso de privacidad desde los datos editables.
+Completa desde el panel la fotografía, los datos de contacto y el domicilio pendiente del aviso de privacidad. El enlace de WhatsApp y los proyectos permanecen ocultos hasta que agregues datos reales.
