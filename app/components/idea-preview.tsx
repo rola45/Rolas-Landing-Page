@@ -5,10 +5,13 @@ import { ArrowRight, Check, ChevronRight, LayoutTemplate, LoaderCircle, Monitor,
 import { translateCopy, type SiteLanguage } from "@/lib/site-translation";
 
 type Goal = "present" | "inquiries" | "workflow";
+type PageType = "business" | "catalog" | "portfolio" | "landing" | "webapp";
 type VisualStyle = "minimal" | "technical" | "editorial" | "botanical" | "violet" | "coral" | "monochrome";
 type PreviewPage = "home" | "services" | "about" | "contact";
 type PreviewLayout = "editorial" | "visual" | "cards";
 type PreviewDevice = "desktop" | "tablet" | "mobile";
+type Typeface = "modern" | "editorial" | "technical";
+type CornerStyle = "square" | "soft" | "rounded";
 type Concept = { headline: string; description: string; cta: string; recommendation: string; sections: { title: string; description: string }[] };
 
 const goals: { id: Goal; title: string; description: string }[] = [
@@ -16,6 +19,16 @@ const goals: { id: Goal; title: string; description: string }[] = [
   { id: "inquiries", title: "Recibir solicitudes", description: "Facilitar que las personas me contacten." },
   { id: "workflow", title: "Organizar un proceso", description: "Explorar un sistema web para mi operación." },
 ];
+
+const pageTypes: { id: PageType; title: string; description: string }[] = [
+  { id: "business", title: "Página de servicios", description: "Presentación y servicios." },
+  { id: "catalog", title: "Catálogo / tienda", description: "Productos y categorías." },
+  { id: "portfolio", title: "Portafolio visual", description: "Proyectos e imágenes." },
+  { id: "landing", title: "Landing de contacto", description: "Propuesta y solicitudes." },
+  { id: "webapp", title: "Sistema web", description: "Panel y flujo de trabajo." },
+];
+
+const defaultPageType: Record<Goal, PageType> = { present: "business", inquiries: "landing", workflow: "webapp" };
 
 const visualStyles: { id: VisualStyle; title: string; description: string; colors: string[]; theme: { paper: string; surface: string; ink: string; muted: string; accent: string; accentSoft: string } }[] = [
   { id: "minimal", title: "Azul limpio", description: "Blanco, azul sereno y mucho aire.", colors: ["#edf3ff", "#ffffff", "#2866e8"], theme: { paper: "#f1f5fc", surface: "#ffffff", ink: "#17263b", muted: "#65738a", accent: "#2866e8", accentSoft: "#e6eeff" } },
@@ -46,6 +59,18 @@ const previewDevices: { id: PreviewDevice; title: string }[] = [
   { id: "mobile", title: "Móvil" },
 ];
 
+const typefaces: { id: Typeface; title: string; description: string; sample: string }[] = [
+  { id: "modern", title: "Sans moderna", description: "Clara y actual.", sample: "Aa" },
+  { id: "editorial", title: "Serif editorial", description: "Clásica y expresiva.", sample: "Ag" },
+  { id: "technical", title: "Técnica", description: "Precisa y digital.", sample: "01" },
+];
+
+const cornerStyles: { id: CornerStyle; title: string }[] = [
+  { id: "square", title: "Rectas" },
+  { id: "soft", title: "Suaves" },
+  { id: "rounded", title: "Redondeadas" },
+];
+
 const goalContent: Record<Goal, { headline: string; description: string; sections: string[]; recommendation: string }> = {
   present: {
     headline: "Una presencia clara para {name}",
@@ -67,22 +92,89 @@ const goalContent: Record<Goal, { headline: string; description: string; section
   },
 };
 
-function templateConcept(goal: Goal): Concept {
+function templateConcept(goal: Goal, pageType: PageType): Concept {
   const details = goalContent[goal];
-  return {
-    headline: details.headline,
-    description: details.description,
-    cta: goal === "inquiries" ? "Solicitar información" : goal === "workflow" ? "Conocer la solución" : "Conocer servicios",
-    recommendation: details.recommendation,
-    sections: details.sections.slice(1, 4).map((title) => ({ title, description: details.description })),
+  const formats: Record<PageType, { headline: string; description: string; cta: string; sections: { title: string; description: string }[] }> = {
+    business: {
+      headline: goal === "present" ? details.headline : "Una presencia clara para {name}",
+      description: "Presenta tus servicios, explica cómo trabajas y abre una conversación.",
+      cta: "Conocer servicios",
+      sections: [
+        { title: "Servicios", description: "Una selección breve de lo que ofreces." },
+        { title: "Sobre el negocio", description: "Una sección para explicar quién está detrás." },
+        { title: "Contacto", description: "Un siguiente paso fácil de encontrar." },
+      ],
+    },
+    catalog: {
+      headline: "Una vitrina digital para {name}",
+      description: "Organiza artículos por categorías y ayuda a explorar la oferta.",
+      cta: "Explorar catálogo",
+      sections: [
+        { title: "Categorías", description: "Agrupa el catálogo para facilitar la búsqueda." },
+        { title: "Selección destacada", description: "Da prioridad visual a artículos elegidos." },
+        { title: "Consulta de producto", description: "Permite preguntar por disponibilidad y detalles." },
+      ],
+    },
+    portfolio: {
+      headline: "Un portafolio con identidad propia",
+      description: "Presenta proyectos mediante imágenes, contexto y una navegación visual.",
+      cta: "Ver proyectos",
+      sections: [
+        { title: "Selección de proyectos", description: "Una galería para mostrar trabajos reales." },
+        { title: "Proceso de trabajo", description: "Explica las etapas detrás de cada proyecto." },
+        { title: "Sobre el estudio", description: "Presenta a la persona o equipo responsable." },
+      ],
+    },
+    landing: {
+      headline: goal === "inquiries" ? details.headline : "Una página pensada para iniciar conversación",
+      description: "Resume la propuesta, responde dudas clave y facilita enviar una solicitud.",
+      cta: "Solicitar información",
+      sections: [
+        { title: "Propuesta principal", description: "Explica en pocas palabras el valor del servicio." },
+        { title: "Preguntas frecuentes", description: "Resuelve dudas antes de que alguien escriba." },
+        { title: "Formulario", description: "Un punto de contacto con los datos necesarios." },
+      ],
+    },
+    webapp: {
+      headline: goal === "workflow" ? details.headline : "Un sistema alrededor de tu proceso",
+      description: "Visualiza un panel conceptual con módulos y etapas por definir.",
+      cta: "Explorar el sistema",
+      sections: [
+        { title: "Necesidad", description: "Define quién usaría el sistema y para qué." },
+        { title: "Flujo de trabajo", description: "Ordena las etapas que quieres simplificar." },
+        { title: "Funciones clave", description: "Prioriza las herramientas necesarias para operar." },
+      ],
+    },
   };
+  const format = formats[pageType];
+  return {
+    headline: format.headline,
+    description: format.description,
+    cta: format.cta,
+    recommendation: details.recommendation,
+    sections: format.sections,
+  };
+}
+
+function accentTextColor(hex: string) {
+  const rgb = [1, 3, 5].map((start) => Number.parseInt(hex.slice(start, start + 2), 16) / 255);
+  const luminance = rgb.reduce((sum, channel, index) => {
+    const linear = channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    return sum + linear * [0.2126, 0.7152, 0.0722][index];
+  }, 0);
+  return luminance > 0.18 ? "#101820" : "#ffffff";
 }
 
 export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: SiteLanguage; apiBase: string; onRequestQuote: (summary: string) => void }) {
   const t = (value: string) => translateCopy(value, language);
   const [goal, setGoal] = useState<Goal | "">("");
+  const [pageTypeOverride, setPageTypeOverride] = useState<PageType | "">("");
   const [style, setStyle] = useState<VisualStyle>("minimal");
+  const [customAccentEnabled, setCustomAccentEnabled] = useState(false);
+  const [customAccent, setCustomAccent] = useState("#2866e8");
   const [layout, setLayout] = useState<PreviewLayout>("editorial");
+  const [typeface, setTypeface] = useState<Typeface>("modern");
+  const [corners, setCorners] = useState<CornerStyle>("square");
   const [device, setDevice] = useState<PreviewDevice>("desktop");
   const [activePreviewPage, setActivePreviewPage] = useState<PreviewPage>("home");
   const [projectName, setProjectName] = useState("");
@@ -96,7 +188,11 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   const [honeypot, setHoneypot] = useState("");
   const [resultOpen, setResultOpen] = useState(false);
   const goalDetail = goal ? goalContent[goal] : undefined;
+  const pageType = pageTypeOverride || (goal ? defaultPageType[goal] : "business");
   const chosenStyle = visualStyles.find((option) => option.id === style) ?? visualStyles[0];
+  const previewTheme = customAccentEnabled
+    ? { ...chosenStyle.theme, accent: customAccent, accentSoft: `color-mix(in srgb, ${customAccent} 15%, ${chosenStyle.theme.paper})` }
+    : chosenStyle.theme;
   const chosenLayout = previewLayouts.find((option) => option.id === layout) ?? previewLayouts[0];
   const chosenDevice = previewDevices.find((option) => option.id === device) ?? previewDevices[0];
   const name = projectName.trim() || t("Tu proyecto");
@@ -126,14 +222,14 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
       const response = await fetch(`${apiBase}/api/idea-preview`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ goal, style, projectName, audience, language, website: honeypot, startedAt: startedAt.current }),
+        body: JSON.stringify({ goal, pageType, style, projectName, audience, language, website: honeypot, startedAt: startedAt.current }),
       });
       const result = await response.json().catch(() => ({})) as { concept?: Concept; mode?: "ai"; code?: string };
       if (response.ok && result.concept) {
         setConcept(result.concept);
         setConceptMode("ai");
       } else if (result.code === "NOT_CONFIGURED") {
-        setConcept(templateConcept(goal));
+        setConcept(templateConcept(goal, pageType));
         setConceptMode("template");
         setGenerationNotice(t("La maqueta base está disponible; falta configurar el servicio de generación personalizada."));
       } else {
@@ -156,8 +252,8 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   function requestQuote() {
     if (!goal || !concept) return;
     const summary = language === "en"
-      ? `Website idea: ${projectName.trim() || "My project"}. Goal: ${t(goals.find((option) => option.id === goal)?.title ?? "")}. Audience: ${audience.trim() || "not specified"}. Preferred colors: ${t(chosenStyle.title)}. Page layout: ${t(chosenLayout.title)}. Priority screen: ${t(chosenDevice.title)}. Suggested structure: ${concept.sections.map((section) => t(section.title)).join(", ")}.`
-      : `Idea de sitio web: ${projectName.trim() || "Mi proyecto"}. Objetivo: ${goals.find((option) => option.id === goal)?.title ?? ""}. Audiencia: ${audience.trim() || "por definir"}. Paleta preferida: ${chosenStyle.title}. Diseño de página: ${chosenLayout.title}. Pantalla prioritaria: ${chosenDevice.title}. Estructura sugerida: ${concept.sections.map((section) => section.title).join(", ")}.`;
+      ? `Website idea: ${projectName.trim() || "My project"}. Goal: ${t(goals.find((option) => option.id === goal)?.title ?? "")}. Page type: ${t(pageTypes.find((option) => option.id === pageType)?.title ?? "")}. Audience: ${audience.trim() || "not specified"}. Preferred colors: ${t(chosenStyle.title)}${customAccentEnabled ? ` (${t("Acento personalizado")}: ${customAccent})` : ""}. Page layout: ${t(chosenLayout.title)}. Typography: ${t(typefaces.find((option) => option.id === typeface)?.title ?? "")}. Corners: ${t(cornerStyles.find((option) => option.id === corners)?.title ?? "")}. Priority screen: ${t(chosenDevice.title)}. Suggested structure: ${concept.sections.map((section) => t(section.title)).join(", ")}.`
+      : `Idea de sitio web: ${projectName.trim() || "Mi proyecto"}. Objetivo: ${goals.find((option) => option.id === goal)?.title ?? ""}. Tipo de página: ${pageTypes.find((option) => option.id === pageType)?.title ?? ""}. Audiencia: ${audience.trim() || "por definir"}. Paleta preferida: ${chosenStyle.title}${customAccentEnabled ? ` (${t("Acento personalizado")}: ${customAccent})` : ""}. Diseño de página: ${chosenLayout.title}. Tipografía: ${typefaces.find((option) => option.id === typeface)?.title ?? ""}. Esquinas: ${cornerStyles.find((option) => option.id === corners)?.title ?? ""}. Pantalla prioritaria: ${chosenDevice.title}. Estructura sugerida: ${concept.sections.map((section) => section.title).join(", ")}.`;
     onRequestQuote(summary);
   }
 
@@ -177,7 +273,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
         <fieldset className="idea-fieldset">
           <legend><span className="idea-step">01</span>{t("¿Para qué quieres la página?")}</legend>
           <div className="idea-goal-options">
-            {goals.map((option) => <button key={option.id} className="idea-choice" type="button" aria-pressed={goal === option.id} onClick={() => { setGoal(option.id); setConcept(null); setGenerationNotice(""); setGenerationError(""); setResultOpen(false); setActivePreviewPage("home"); }}>
+            {goals.map((option) => <button key={option.id} className="idea-choice" type="button" aria-pressed={goal === option.id} onClick={() => { setGoal(option.id); setPageTypeOverride(""); setConcept(null); setGenerationNotice(""); setGenerationError(""); setResultOpen(false); setActivePreviewPage("home"); }}>
               <span className="idea-choice-icon" aria-hidden="true">{option.id === "present" ? <LayoutTemplate size={17} /> : option.id === "inquiries" ? <ArrowRight size={17} /> : <Monitor size={17} />}</span>
               <span><b>{t(option.title)}</b><small>{t(option.description)}</small></span>
               <span className="idea-choice-check" aria-hidden="true"><Check size={13} /></span>
@@ -194,14 +290,23 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
           </label>
         </div>
 
+        <fieldset className="idea-fieldset idea-page-type-fieldset">
+          <legend><span className="idea-step">02</span>{t("¿Qué tipo de página imaginas?")}</legend>
+          <div className="idea-page-type-options" role="group" aria-label={t("Tipo de página")}>{pageTypes.map((option) => <button key={option.id} type="button" aria-pressed={pageType === option.id} onClick={() => { setPageTypeOverride(option.id); if (concept && goal && conceptMode === "template") setConcept(templateConcept(goal, option.id)); }}><b>{t(option.title)}</b><small>{t(option.description)}</small></button>)}</div>
+        </fieldset>
+
         <fieldset className="idea-fieldset idea-style-fieldset">
-          <legend><span className="idea-step">02</span>{t("¿Qué estilo se acerca más a tu gusto?")}</legend>
+          <legend><span className="idea-step">03</span>{t("¿Qué estilo se acerca más a tu gusto?")}</legend>
           <div className="idea-style-options">
             {visualStyles.map((option) => <button key={option.id} className="idea-style-choice" type="button" aria-pressed={style === option.id} onClick={() => setStyle(option.id)}>
               <span className="idea-swatches" aria-hidden="true">{option.colors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</span>
               <span className="idea-style-copy"><b>{t(option.title)}</b><small>{t(option.description)}</small></span>
               {style === option.id && <Check className="idea-style-selected" size={14} aria-hidden="true" />}
             </button>)}
+          </div>
+          <div className="idea-custom-accent">
+            <label className="idea-custom-accent-toggle"><input type="checkbox" checked={customAccentEnabled} onChange={(event) => setCustomAccentEnabled(event.target.checked)} /><span>{t("Usar un color de acento propio")}</span></label>
+            <label className="idea-custom-accent-picker">{t("Acento personalizado")}<input type="color" value={customAccent} disabled={!customAccentEnabled} onChange={(event) => { setCustomAccent(event.target.value); setCustomAccentEnabled(true); }} /></label>
           </div>
         </fieldset>
 
@@ -240,6 +345,24 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
                 </button>)}
               </div>
             </div>
+            <div className="idea-personalization-options">
+              <div className="idea-personalization-group">
+                <span className="idea-layout-picker-label">{t("TIPOGRAFÍA")}</span>
+                <div className="idea-typeface-options" role="group" aria-label={t("Estilo tipográfico")}>
+                  {typefaces.map((option) => <button key={option.id} type="button" aria-pressed={typeface === option.id} title={t(option.description)} onClick={() => setTypeface(option.id)}>
+                    <b data-typeface-sample={option.id} aria-hidden="true">{option.sample}</b><span>{t(option.title)}</span>
+                  </button>)}
+                </div>
+              </div>
+              <div className="idea-personalization-group">
+                <span className="idea-layout-picker-label">{t("ESQUINAS")}</span>
+                <div className="idea-corner-options" role="group" aria-label={t("Forma de los componentes")}>
+                  {cornerStyles.map((option) => <button key={option.id} type="button" aria-pressed={corners === option.id} onClick={() => setCorners(option.id)}>
+                    <i data-corner-sample={option.id} aria-hidden="true" />{t(option.title)}
+                  </button>)}
+                </div>
+              </div>
+            </div>
           </div>
           <div className="idea-device-stage">
           <div className="idea-browser-frame" data-device={device}>
@@ -247,28 +370,36 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
             <div className="idea-page-tabs" role="group" aria-label={t("Páginas de ejemplo")}>
               {previewPages.map((page) => <button key={page.id} type="button" aria-pressed={activePreviewPage === page.id} onClick={() => setActivePreviewPage(page.id)}>{previewPageLabel(page.id)}</button>)}
             </div>
-            <div className="idea-browser-page" data-layout={layout} data-device={device} style={{
-              "--demo-paper": chosenStyle.theme.paper,
-              "--demo-white": chosenStyle.theme.surface,
-              "--demo-ink": chosenStyle.theme.ink,
-              "--demo-muted": chosenStyle.theme.muted,
-              "--demo-accent": chosenStyle.theme.accent,
-              "--demo-accent-soft": chosenStyle.theme.accentSoft,
+            <div className="idea-browser-page" data-layout={layout} data-device={device} data-goal={goal} data-page-type={pageType} data-typeface={typeface} data-corners={corners} style={{
+              "--demo-paper": previewTheme.paper,
+              "--demo-white": previewTheme.surface,
+              "--demo-ink": previewTheme.ink,
+              "--demo-muted": previewTheme.muted,
+              "--demo-accent": previewTheme.accent,
+              "--demo-accent-soft": previewTheme.accentSoft,
+              "--demo-accent-ink": customAccentEnabled ? accentTextColor(customAccent) : undefined,
             } as CSSProperties}>
               <div className="idea-demo-nav"><b>{name}</b><span>{previewPageLabel(activePreviewPage)}</span><span className="idea-demo-nav-cta">{conceptCta}</span></div>
               {activePreviewPage === "home" && <section key="home" className="idea-demo-screen">
-                <div className="idea-demo-home">
+                <div className={`idea-demo-home idea-demo-home-${pageType}`}>
                   <div className="idea-demo-hero">
                     <span className="idea-demo-eyebrow">{t("UNA PROPUESTA PARA")}</span>
                     <h4>{conceptHeadline}</h4>
                     <p>{conceptDescription}{audience.trim() && conceptMode === "template" ? ` ${t("Pensada para")}: ${audience.trim()}.` : ""}</p>
                     <span className="idea-demo-cta">{conceptCta} <ArrowRight size={13} /></span>
                   </div>
-                  <div className="idea-demo-art" aria-hidden="true">
+                  {pageType === "landing" ? <div className="idea-demo-form idea-demo-quick-form" role="group" aria-label={t("Formulario de ejemplo")}><b>{t("Inicia una solicitud")}</b><span>{t("Nombre")}</span><i /><span>{t("Correo electrónico")}</span><i /><strong>{previewContactCta}</strong><small>{t("Vista de ejemplo, no envía información.")}</small></div>
+                    : pageType === "webapp" ? <div className="idea-demo-dashboard" role="group" aria-label={t("Panel conceptual, sin datos reales")}>
+                      <div className="idea-demo-dashboard-top"><span><i />{t("PANEL DE OPERACIÓN")}</span><small>{t("VISTA CONCEPTUAL")}</small></div>
+                      <div className="idea-demo-dashboard-body"><aside aria-hidden="true"><i /><i /><i /><i /></aside><div className="idea-demo-dashboard-content"><b>{t("Módulos por definir")}</b><div>{concept.sections.map((section, index) => <span key={`${section.title}-${index}`}><i>0{index + 1}</i><b>{conceptMode === "ai" ? section.title : t(section.title)}</b><em /></span>)}</div></div></div>
+                    </div>
+                    : pageType === "catalog" ? <div className="idea-demo-catalog" aria-hidden="true"><div className="idea-demo-catalog-feature"><i /><span>{t("SELECCIÓN DESTACADA")}</span></div><div className="idea-demo-catalog-items"><i /><i /><i /></div></div>
+                    : pageType === "portfolio" ? <div className="idea-demo-portfolio" aria-hidden="true"><i /><i /><i /><span>{t("MUESTRA VISUAL")}</span></div>
+                    : <div className="idea-demo-art" aria-hidden="true">
                     <div className="idea-demo-art-orbit" />
                     <div className="idea-demo-art-window"><i /><i /><i /><span /><span /><b /></div>
                     <div className="idea-demo-art-badge"><Sparkles size={14} /></div>
-                  </div>
+                  </div>}
                 </div>
                 <div className="idea-demo-blocks">{concept.sections.map((section, index) => <div key={`${section.title}-${index}`}><i>0{index + 1}</i><b>{conceptMode === "ai" ? section.title : t(section.title)}</b><span>{conceptMode === "ai" ? section.description : t(section.description)}</span></div>)}</div>
               </section>}
@@ -288,7 +419,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
           </div>
           </div>
           <div className="idea-recommendation">
-            <div className="idea-recommendation-heading"><span><Sparkles size={15} />{t("RECOMENDACIÓN INICIAL")}</span><span className="idea-style-chip">{t(chosenStyle.title)}</span></div>
+            <div className="idea-recommendation-heading"><span><Sparkles size={15} />{t("RECOMENDACIÓN INICIAL")}</span><span className="idea-style-chip">{t(chosenStyle.title)}{customAccentEnabled ? ` · ${customAccent.toUpperCase()}` : ""}</span></div>
             <p>{conceptMode === "ai" ? concept.recommendation : t(concept.recommendation)}</p>
             {audience.trim() && <p className="idea-audience-note">{t("Audiencia indicada")}: <b>{audience.trim()}</b></p>}
             <div className="idea-section-tags"><span>{t("Estructura sugerida")}</span>{concept.sections.map((section, index) => <i key={`${section.title}-${index}`}>{conceptMode === "ai" ? section.title : t(section.title)}</i>)}</div>
