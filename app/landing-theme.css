@@ -289,6 +289,10 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .technology-card span { font-size: 11px; }
 }
 
+@media (min-width: 761px) and (max-width: 1040px) {
+  .technology-card:last-child:nth-child(3n + 1) { grid-column: 2; }
+}
+
 @media (max-width: 760px) {
   .hero-section { padding-inline: 32px; }
   .hero-grid { grid-template-columns: 1fr; min-height: auto; gap: 25px; }
