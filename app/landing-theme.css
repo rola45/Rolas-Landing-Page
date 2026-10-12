@@ -17,6 +17,7 @@
 }
 
 :root {
+  color-scheme: light;
   --ink: #181a1e;
   --graphite: #171a20;
   --graphite-soft: #252b34;
@@ -274,8 +275,9 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
 .lead-form label .optional { color: #68717c; }
 .lead-form input:not([type="checkbox"]):not([type="hidden"]), .lead-form select, .lead-form textarea { border-color: #cfd5de; border-radius: 3px; color: #20242b; background: #fff; font-size: 12px; }
 .lead-form input::placeholder, .lead-form textarea::placeholder { color: #626b76; }
-.lead-form select { background-image: linear-gradient(45deg, transparent 50%, #59636f 50%), linear-gradient(135deg, #59636f 50%, transparent 50%); }
+.lead-form select { -webkit-appearance: none; appearance: none; color-scheme: light; background-image: linear-gradient(45deg, transparent 50%, #59636f 50%), linear-gradient(135deg, #59636f 50%, transparent 50%); }
 .lead-form select:invalid { color: #626b76; }
+.lead-form option { color: #20242b; background: #fff; }
 .lead-form input:focus, .lead-form textarea:focus, .lead-form select:focus { border-color: #438bff; background-color: #fff; box-shadow: 0 0 0 3px rgb(20 110 245 / 13%); }
 .consent-row { color: #424c59 !important; }
 .consent-row a { color: #18368f; }
@@ -580,13 +582,15 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
 :root[data-theme="dark"] .form-number { color: #b8c3d0; }
 :root[data-theme="dark"] .lead-form label { color: #e2e8ef; }
 :root[data-theme="dark"] .lead-form label .optional { color: #aeb9c7; }
+:root[data-theme="dark"] { color-scheme: dark; }
 :root[data-theme="dark"] .lead-form input:not([type="checkbox"]):not([type="hidden"]),
 :root[data-theme="dark"] .lead-form select,
 :root[data-theme="dark"] .lead-form textarea { border-color: #4a5564; color: #edf2f8; background-color: #131820; }
 :root[data-theme="dark"] .lead-form input::placeholder,
 :root[data-theme="dark"] .lead-form textarea::placeholder { color: #a6b1bf; }
-:root[data-theme="dark"] .lead-form select { background-image: linear-gradient(45deg, transparent 50%, #b9c5d3 50%), linear-gradient(135deg, #b9c5d3 50%, transparent 50%); }
+:root[data-theme="dark"] .lead-form select { color-scheme: dark; background-image: linear-gradient(45deg, transparent 50%, #b9c5d3 50%), linear-gradient(135deg, #b9c5d3 50%, transparent 50%); }
 :root[data-theme="dark"] .lead-form select:invalid { color: #a6b1bf; }
+:root[data-theme="dark"] .lead-form option { color: #edf2f8; background: #1b212a; }
 :root[data-theme="dark"] .lead-form input:focus,
 :root[data-theme="dark"] .lead-form textarea:focus,
 :root[data-theme="dark"] .lead-form select:focus { border-color: #75a6ff; background-color: #131820; box-shadow: 0 0 0 3px rgb(91 148 255 / 22%); }
