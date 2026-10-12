@@ -602,6 +602,35 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
 :root[data-theme="dark"] .form-success .text-link { color: #a6c2ff; }
 :root[data-theme="dark"] .site-footer { border-top-color: rgb(255 255 255 / 12%); background: #0d1015; }
 
+/* Keep the native service selector visually aligned with the contact fields. */
+.contact-form-wrap .lead-form select {
+  -webkit-appearance: none;
+  appearance: none;
+  border-color: #cfd5de;
+  border-radius: 3px;
+  color: #20242b;
+  color-scheme: light;
+  background-color: #fff;
+}
+.contact-form-wrap .lead-form select:focus {
+  border-color: #438bff;
+  color-scheme: light;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgb(20 110 245 / 13%);
+}
+:root[data-theme="dark"] .contact-form-wrap .lead-form select {
+  border-color: #4a5564;
+  color: #edf2f8;
+  color-scheme: dark;
+  background-color: #131820;
+}
+:root[data-theme="dark"] .contact-form-wrap .lead-form select:focus {
+  border-color: #75a6ff;
+  color-scheme: dark;
+  background-color: #131820;
+  box-shadow: 0 0 0 3px rgb(91 148 255 / 22%);
+}
+
 :root[data-theme="dark"] .technology-card { border-color: #e2e6ec; color: #242a33; background: #f8fafc; }
 :root[data-theme="dark"] .technology-card span { color: #29313b; }
 :root[data-theme="dark"] .technology-card img { filter: grayscale(1) brightness(.2); }
