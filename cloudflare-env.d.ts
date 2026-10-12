@@ -5,5 +5,6 @@ declare namespace Cloudflare {
     ADMIN_EMAIL?: string;
     RATE_LIMIT_SALT?: string;
     PUBLIC_SITE_ORIGIN?: string;
+    GEMINI_API_KEY?: string;
   }
 }

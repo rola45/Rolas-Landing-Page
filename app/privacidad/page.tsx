@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export default async function PrivacyPage() {
   const content = await getSiteContent();
   const updated = new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeZone: "America/Tijuana" }).format(new Date());
   return <main className="privacy-page">
-    <header className="privacy-header"><a className="brand-lockup" href="/"><span className="brand-mark">RV<span>.</span></span><span className="brand-name">{content.brandName}</span></a><a className="text-link" href="/"><ArrowLeft size={16} /> Volver al sitio</a></header>
+    <header className="privacy-header"><Link className="brand-lockup" href="/"><span className="brand-mark">RV<span>.</span></span><span className="brand-name">{content.brandName}</span></Link><Link className="text-link" href="/"><ArrowLeft size={16} /> Volver al sitio</Link></header>
     <article className="privacy-main"><p className="eyebrow"><span className="eyebrow-dot" />TRANSPARENCIA Y DATOS PERSONALES</p><h1>Aviso de privacidad</h1><p className="privacy-updated">Última actualización: {updated}</p>
       <section className="privacy-block"><h2>Responsable y domicilio</h2><p><strong>Rolando Victorio</strong>, quien ofrece servicios bajo la marca RV Solutions, es responsable del tratamiento de los datos personales recabados en este sitio.</p>{content.contact.privacyAddress ? <p>Domicilio para oír y recibir notificaciones: {content.contact.privacyAddress}</p> : <div className="privacy-missing"><strong>Domicilio pendiente de configuración.</strong> Este dato no fue proporcionado y debe agregarse desde el panel de administración.</div>}</section>
       <section className="privacy-block"><h2>Datos que se recaban</h2><p>Al enviar el formulario se pueden recabar nombre, correo electrónico, teléfono si lo proporcionas, servicio de interés y el contenido de tu mensaje. Para prevenir envíos automatizados, el sistema calcula una huella criptográfica temporal a partir de la dirección IP; la dirección IP completa no se guarda en la base de solicitudes.</p><p>No se solicitan datos personales sensibles. Evita incluirlos en el mensaje.</p></section>

@@ -15,6 +15,8 @@ export type SiteContent = {
   aboutText: string;
   profileImage: string;
   profileImageAlt: string;
+  heroImage: string;
+  heroImageAlt: string;
   contact: { email: string; phone: string; whatsappNumber: string; privacyAddress: string };
   socials: { id: string; label: string; url: string; visible: boolean }[];
   services: { digital: ServiceItem[]; equipment: ServiceItem[] };

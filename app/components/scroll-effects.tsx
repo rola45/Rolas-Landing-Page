@@ -8,14 +8,15 @@ export function ScrollEffects() {
     let observer: IntersectionObserver | undefined;
     if (!reducedMotion && "IntersectionObserver" in window) {
       document.documentElement.classList.add("has-reveal");
-      observer = new IntersectionObserver((entries) => {
+      const revealObserver = new IntersectionObserver((entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           entry.target.setAttribute("data-visible", "true");
-          observer.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         }
       }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
-      document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((node) => observer.observe(node));
+      observer = revealObserver;
+      document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((node) => revealObserver.observe(node));
     }
 
     const header = document.querySelector<HTMLElement>(".site-header");

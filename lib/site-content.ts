@@ -22,6 +22,8 @@ export const siteContentSchema = z.object({
   aboutText: z.string().trim().min(1).max(1400),
   profileImage: safeImage,
   profileImageAlt: z.string().trim().max(180),
+  heroImage: safeImage.optional(),
+  heroImageAlt: z.string().trim().max(180).optional(),
   contact: z.object({
     email: z.union([z.literal(""), z.string().email().max(254)]),
     phone: z.string().max(40).regex(/^[+0-9()\s.-]*$/),
@@ -37,7 +39,15 @@ export const siteContentSchema = z.object({
   sectionVisibility: z.object({ services: z.boolean(), about: z.boolean(), portfolio: z.boolean(), process: z.boolean(), faq: z.boolean(), contact: z.boolean() }).strict(),
   sectionsOrder: z.array(z.enum(["services", "about", "portfolio", "process", "faq", "contact"])).length(6),
   seo: z.object({ title: z.string().trim().min(1).max(160), description: z.string().trim().min(1).max(320) }).strict(),
-}).strict().refine((value) => new Set(value.sectionsOrder).size === 6, { message: "El orden de secciones contiene valores repetidos." });
+}).strict()
+  .refine((value) => new Set(value.sectionsOrder).size === 6, { message: "El orden de secciones contiene valores repetidos." })
+  .transform((value) => ({
+    ...value,
+    // Older CMS payloads used one portrait for both areas. Preserve it in the hero
+    // during migration; future edits can change either image independently.
+    heroImage: value.heroImage ?? value.profileImage,
+    heroImageAlt: value.heroImageAlt ?? value.profileImageAlt,
+  }));
 
 export async function getSiteContent(): Promise<SiteContent> {
   try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ExternalLink, Eye, EyeOff, ImagePlus, Inbox, LayoutDashboard, Link2, LoaderCircle, LogOut, Plus, Save, Settings2, Trash2 } from "lucide-react";
 import type { FaqItem, ProcessStep, ProjectItem, ServiceItem, SiteContent } from "@/lib/site-content";
 
@@ -24,7 +24,7 @@ function ImageUpload({ value, alt, onUpload, onAlt, label }: { value: string; al
     const body = new FormData(); body.append("file", file);
     try {
       const response = await fetch("/api/upload", { method: "POST", body });
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch(() => ({})) as { error?: string; url: string };
       if (!response.ok) throw new Error(data.error || "No se pudo subir la imagen.");
       onUpload(data.url);
     } catch (err) { setError(err instanceof Error ? err.message : "No se pudo subir la imagen."); }
@@ -59,7 +59,7 @@ export function AdminEditor({ initialContent, displayEmail }: { initialContent: 
     setSaving(true); setSaveMessage("");
     try {
       const response = await fetch("/api/content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(content) });
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch(() => ({})) as { error?: string; content: SiteContent };
       if (!response.ok) throw new Error(data.error || "No se pudieron guardar los cambios.");
       setContent(data.content); setSavedSnapshot(JSON.stringify(data.content)); setSaveMessage("Cambios guardados y publicados en la página.");
     } catch (error) { setSaveMessage(error instanceof Error ? error.message : "No se pudieron guardar los cambios."); }
@@ -67,18 +67,18 @@ export function AdminEditor({ initialContent, displayEmail }: { initialContent: 
   }
 
   async function refreshLeads() {
-    setLeadError("");
     try {
       const response = await fetch("/api/leads", { cache: "no-store" });
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json().catch(() => ({})) as { error?: string; leads: Lead[] };
       if (!response.ok) throw new Error(data.error || "No fue posible consultar las solicitudes.");
+      setLeadError("");
       setLeads(data.leads);
     } catch (error) { setLeadError(error instanceof Error ? error.message : "No fue posible consultar las solicitudes."); }
   }
 
   async function setLeadStatus(lead: Lead, status: Lead["status"]) {
     const response = await fetch(`/api/leads/${lead.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
-    const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({})) as { error?: string };
     if (!response.ok) { setLeadError(data.error || "No fue posible actualizar la solicitud."); return; }
     setLeads((current) => current.map((item) => item.id === lead.id ? { ...item, status } : item));
   }
@@ -86,12 +86,10 @@ export function AdminEditor({ initialContent, displayEmail }: { initialContent: 
   async function deleteLead(lead: Lead) {
     if (!window.confirm(`¿Eliminar la solicitud de ${lead.name}? Esta acción no se puede deshacer.`)) return;
     const response = await fetch(`/api/leads/${lead.id}`, { method: "DELETE" });
-    const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({})) as { error?: string };
     if (!response.ok) { setLeadError(data.error || "No fue posible eliminar la solicitud."); return; }
     setLeads((current) => current.filter((item) => item.id !== lead.id));
   }
-
-  useEffect(() => { if (tab === "leads") void refreshLeads(); }, [tab]);
 
   const activeTab = tabItems.find((item) => item.id === tab)!;
   const setVisibility = (key: keyof SiteContent["sectionVisibility"], value: boolean) => update({ ...content, sectionVisibility: { ...content.sectionVisibility, [key]: value } });
@@ -103,7 +101,7 @@ export function AdminEditor({ initialContent, displayEmail }: { initialContent: 
 
   return <div className="admin-layout">
     <aside className="admin-sidebar"><div className="admin-sidebar-brand"><span className="admin-logo">RV<span>.</span></span><div><b>{content.brandName}</b><small>Administración del sitio</small></div></div>
-      <nav className="admin-nav" aria-label="Secciones del panel">{tabItems.map((item) => { const Icon = item.icon; return <button type="button" key={item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}><Icon size={17} /><span>{item.label}</span>{item.id === "leads" && leads.some((lead) => lead.status === "new") && <i aria-label="Nuevas solicitudes" />}</button>; })}</nav>
+      <nav className="admin-nav" aria-label="Secciones del panel">{tabItems.map((item) => { const Icon = item.icon; return <button type="button" key={item.id} className={tab === item.id ? "active" : ""} onClick={() => { setTab(item.id); if (item.id === "leads") void refreshLeads(); }}><Icon size={17} /><span>{item.label}</span>{item.id === "leads" && leads.some((lead) => lead.status === "new") && <i aria-label="Nuevas solicitudes" />}</button>; })}</nav>
       <div className="admin-sidebar-bottom"><a href="/" target="_blank" rel="noreferrer"><ExternalLink size={15} /> Ver página pública</a><span className="admin-account">{displayEmail}</span><a href="/signout-with-chatgpt?return_to=/admin" target="_top"><LogOut size={15} /> Cerrar sesión</a></div>
     </aside>
     <main className="admin-main"><header className="admin-topbar"><div><span className="admin-overline">RV SOLUTIONS / PANEL</span><h1>{activeTab.label}</h1></div><div className="admin-top-actions"><span className={`admin-save-state ${dirty ? "is-dirty" : ""}`}>{dirty ? "Cambios sin guardar" : "Todo guardado"}</span><button type="button" className="admin-button admin-button-primary" onClick={save} disabled={!dirty || saving}>{saving ? <LoaderCircle className="spin" size={15} /> : <Save size={15} />}{saving ? "Guardando" : "Guardar cambios"}</button></div></header>
@@ -114,8 +112,8 @@ export function AdminEditor({ initialContent, displayEmail }: { initialContent: 
         <div className="admin-panel-card admin-draft-note"><b>Contenido inicial editable</b><p>Revisa y personaliza los textos de presentación, descripción profesional y servicios antes de compartir el sitio.</p></div>
       </section>}
 
-      {tab === "content" && <section className="admin-panel-content"><div className="admin-panel-card"><div className="admin-card-title"><div><span className="admin-overline">PRESENTACIÓN PRINCIPAL</span><h2>Nombre y propuesta</h2></div><p>El contenido aquí aparece en la portada. Usa información real y concreta.</p></div><div className="admin-fields-grid"><TextField label="Nombre de la marca" value={content.brandName} onChange={(v) => update({ ...content, brandName: v })} /><TextField label="Nombre de presentación" value={content.displayName} onChange={(v) => update({ ...content, displayName: v })} /><TextField label="Especialidad" value={content.role} onChange={(v) => update({ ...content, role: v })} /><TextField label="Etiqueta sobre el título" value={content.heroEyebrow} onChange={(v) => update({ ...content, heroEyebrow: v })} /><TextField label="Título principal" value={content.heroTitle} onChange={(v) => update({ ...content, heroTitle: v })} /><TextField label="Texto del botón principal" value={content.heroCta} onChange={(v) => update({ ...content, heroCta: v })} /><TextField label="Descripción principal" value={content.heroDescription} multiline onChange={(v) => update({ ...content, heroDescription: v })} /></div></div>
-        <div className="admin-panel-card"><div className="admin-card-title"><div><span className="admin-overline">SOBRE MÍ</span><h2>Descripción profesional</h2></div><p>Sin datos provisionales: ajusta este texto con tu trayectoria y enfoque.</p></div><div className="admin-fields-grid"><TextField label="Título" value={content.aboutTitle} onChange={(v) => update({ ...content, aboutTitle: v })} /><TextField label="Descripción" value={content.aboutText} multiline onChange={(v) => update({ ...content, aboutText: v })} /><ImageUpload label="Fotografía profesional" value={content.profileImage} alt={content.profileImageAlt} onUpload={(url) => update({ ...content, profileImage: url })} onAlt={(v) => update({ ...content, profileImageAlt: v })} /></div></div>
+      {tab === "content" && <section className="admin-panel-content"><div className="admin-panel-card"><div className="admin-card-title"><div><span className="admin-overline">PRESENTACIÓN PRINCIPAL</span><h2>Nombre y propuesta</h2></div><p>El contenido aquí aparece en la portada. Usa información real y concreta.</p></div><div className="admin-fields-grid"><TextField label="Nombre de la marca" value={content.brandName} onChange={(v) => update({ ...content, brandName: v })} /><TextField label="Nombre de presentación" value={content.displayName} onChange={(v) => update({ ...content, displayName: v })} /><TextField label="Especialidad" value={content.role} onChange={(v) => update({ ...content, role: v })} /><TextField label="Etiqueta sobre el título" value={content.heroEyebrow} onChange={(v) => update({ ...content, heroEyebrow: v })} /><TextField label="Título principal" value={content.heroTitle} onChange={(v) => update({ ...content, heroTitle: v })} /><TextField label="Texto del botón principal" value={content.heroCta} onChange={(v) => update({ ...content, heroCta: v })} /><TextField label="Descripción principal" value={content.heroDescription} multiline onChange={(v) => update({ ...content, heroDescription: v })} /></div><ImageUpload label="Imagen de inicio" value={content.heroImage} alt={content.heroImageAlt} onUpload={(url) => update({ ...content, heroImage: url })} onAlt={(v) => update({ ...content, heroImageAlt: v })} /></div>
+        <div className="admin-panel-card"><div className="admin-card-title"><div><span className="admin-overline">SOBRE MÍ</span><h2>Descripción profesional</h2></div><p>Sin datos provisionales: ajusta este texto con tu trayectoria y enfoque.</p></div><div className="admin-fields-grid"><TextField label="Título" value={content.aboutTitle} onChange={(v) => update({ ...content, aboutTitle: v })} /><TextField label="Descripción" value={content.aboutText} multiline onChange={(v) => update({ ...content, aboutText: v })} /><ImageUpload label="Fotografía de Sobre mí" value={content.profileImage} alt={content.profileImageAlt} onUpload={(url) => update({ ...content, profileImage: url })} onAlt={(v) => update({ ...content, profileImageAlt: v })} /></div></div>
         <div className="admin-panel-card"><div className="admin-card-title"><div><span className="admin-overline">BUSCADORES</span><h2>Título y descripción SEO</h2></div><p>Se utilizan en los resultados de búsqueda y vistas previas al compartir el enlace.</p></div><div className="admin-fields-grid"><TextField label="Título SEO" value={content.seo.title} onChange={(v) => update({ ...content, seo: { ...content.seo, title: v } })} maxLength={160} /><TextField label="Descripción SEO" value={content.seo.description} onChange={(v) => update({ ...content, seo: { ...content.seo, description: v } })} multiline maxLength={320} /></div></div>
       </section>}
 

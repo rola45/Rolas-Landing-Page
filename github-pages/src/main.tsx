@@ -20,7 +20,10 @@ function usePublicContent() {
         return response.json() as Promise<{ content?: SiteContent }>;
       })
       .then((result) => {
-        if (active && result.content) setContent(result.content);
+        if (active && result.content) {
+          const previous = result.content as SiteContent & { heroImage?: string; heroImageAlt?: string };
+          setContent({ ...previous, heroImage: previous.heroImage ?? previous.profileImage, heroImageAlt: previous.heroImageAlt ?? previous.profileImageAlt });
+        }
       })
       .catch(() => undefined);
     return () => { active = false; };

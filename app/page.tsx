@@ -17,6 +17,7 @@ async function getLandingContent() {
     return {
       ...parsed.data,
       profileImage: remoteMedia(parsed.data.profileImage),
+      heroImage: remoteMedia(parsed.data.heroImage),
       projects: parsed.data.projects.map((project) => ({ ...project, image: remoteMedia(project.image) })),
     };
   } catch {

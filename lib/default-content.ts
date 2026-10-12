@@ -16,6 +16,8 @@ export const DEFAULT_CONTENT: SiteContent = {
   aboutText: "Soy Rolando Victorio. Me dedico al desarrollo de aplicaciones, sitios y sistemas web, así como al soporte y mantenimiento de equipos de cómputo. Primero entiendo lo que necesitas; después, propongo una solución práctica y te acompaño durante el proceso.",
   profileImage: "",
   profileImageAlt: "Retrato de Rolando Victorio",
+  heroImage: "",
+  heroImageAlt: "Retrato de Rolando Victorio",
   contact: { email: "", phone: "", whatsappNumber: "", privacyAddress: "" },
   socials: [
     { id: "facebook", label: "Facebook", url: "https://www.facebook.com/rolando.victorio/", visible: true },
