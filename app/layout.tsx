@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-MX" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: 'try{var t=localStorage.getItem("rv-solutions-theme");if(t==="dark")document.documentElement.dataset.theme="dark";var l=localStorage.getItem("rv-solutions-language");if(l==="en")document.documentElement.lang="en"}catch{}' }} /></head>
+    <html lang="es-MX" data-theme="dark" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: 'try{var t=localStorage.getItem("rv-solutions-theme");document.documentElement.dataset.theme=t==="light"?"light":"dark";var l=localStorage.getItem("rv-solutions-language");if(l==="en")document.documentElement.lang="en"}catch{document.documentElement.dataset.theme="dark"}' }} /></head>
       <body className="antialiased">{children}</body>
     </html>
   );

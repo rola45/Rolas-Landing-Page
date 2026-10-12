@@ -4,7 +4,7 @@ import { corsHeaders, isAllowedWriteOrigin, preflight } from "@/lib/public-api";
 
 const requestSchema = z.object({
   goal: z.enum(["present", "inquiries", "workflow"]),
-  style: z.enum(["minimal", "technical", "editorial"]),
+  style: z.enum(["minimal", "technical", "editorial", "botanical", "violet", "coral", "monochrome"]),
   projectName: z.string().trim().max(70).optional().default(""),
   audience: z.string().trim().max(90).optional().default(""),
   language: z.enum(["es", "en"]),
@@ -83,9 +83,13 @@ export async function POST(request: Request) {
     if ((limit?.count ?? 1) > 3) return fail("Se alcanzó el límite temporal de vistas previas. Inténtalo más tarde.", "RATE_LIMITED", 429);
 
     const styleNames = {
-      minimal: "clara y elegante, con fondos claros, amplio espacio y azul como acento",
-      technical: "tecnológica, con grafito, contraste alto y acentos azul eléctrico",
-      editorial: "cálida y editorial, con tonos suaves y una composición cercana",
+      minimal: "clara y elegante, con fondos blancos, amplio espacio y azul sereno como acento",
+      technical: "tecnológica, con grafito profundo, contraste alto y acentos azul eléctrico",
+      editorial: "editorial, con tonos arena y marfil y un acento verde petróleo",
+      botanical: "natural y serena, con verde salvia, blanco y acentos bosque",
+      violet: "digital y contemporánea, con lavanda suave y acentos violetas",
+      coral: "cálida y cercana, con marfil y acentos terracota",
+      monochrome: "monocromática, con carbón, blanco y grises limpios",
     } as const;
     const goals = {
       present: "presentar un negocio o sus servicios con claridad",

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { ArrowRight, Check, ChevronRight, LayoutTemplate, LoaderCircle, Monitor, Sparkles } from "lucide-react";
 import { translateCopy, type SiteLanguage } from "@/lib/site-translation";
 
 type Goal = "present" | "inquiries" | "workflow";
-type VisualStyle = "minimal" | "technical" | "editorial";
+type VisualStyle = "minimal" | "technical" | "editorial" | "botanical" | "violet" | "coral" | "monochrome";
+type PreviewPage = "home" | "services" | "about" | "contact";
 type Concept = { headline: string; description: string; cta: string; recommendation: string; sections: { title: string; description: string }[] };
 
 const goals: { id: Goal; title: string; description: string }[] = [
@@ -14,10 +15,21 @@ const goals: { id: Goal; title: string; description: string }[] = [
   { id: "workflow", title: "Organizar un proceso", description: "Explorar un sistema web para mi operación." },
 ];
 
-const visualStyles: { id: VisualStyle; title: string; description: string; colors: string[] }[] = [
-  { id: "minimal", title: "Clara y elegante", description: "Espacio, orden y lectura fácil.", colors: ["#f7f9fc", "#ffffff", "#2866e8"] },
-  { id: "technical", title: "Tecnológica", description: "Grafito, contraste y acentos eléctricos.", colors: ["#11151b", "#1b2430", "#5790ff"] },
-  { id: "editorial", title: "Cálida y editorial", description: "Tonos suaves y una voz cercana.", colors: ["#f4f0e8", "#fffdf8", "#547b84"] },
+const visualStyles: { id: VisualStyle; title: string; description: string; colors: string[]; theme: { paper: string; surface: string; ink: string; muted: string; accent: string; accentSoft: string } }[] = [
+  { id: "minimal", title: "Azul limpio", description: "Blanco, azul sereno y mucho aire.", colors: ["#edf3ff", "#ffffff", "#2866e8"], theme: { paper: "#f1f5fc", surface: "#ffffff", ink: "#17263b", muted: "#65738a", accent: "#2866e8", accentSoft: "#e6eeff" } },
+  { id: "technical", title: "Grafito eléctrico", description: "Grafito profundo y azul eléctrico.", colors: ["#151a22", "#26313f", "#72a8ff"], theme: { paper: "#151a22", surface: "#202a37", ink: "#f4f7fc", muted: "#c1cad7", accent: "#72a8ff", accentSoft: "#2a3a52" } },
+  { id: "editorial", title: "Arena editorial", description: "Arena, marfil y verde petróleo.", colors: ["#f3efe7", "#fffdf8", "#547b84"], theme: { paper: "#f3efe7", surface: "#fffdf8", ink: "#293b40", muted: "#647579", accent: "#547b84", accentSoft: "#e3ecea" } },
+  { id: "botanical", title: "Verde bosque", description: "Salvia clara con acentos naturales.", colors: ["#eaf2eb", "#ffffff", "#34765a"], theme: { paper: "#edf4ee", surface: "#ffffff", ink: "#21382a", muted: "#62776a", accent: "#34765a", accentSoft: "#dfece1" } },
+  { id: "violet", title: "Lavanda digital", description: "Lavanda suave y violeta nítido.", colors: ["#f1effb", "#ffffff", "#7557bf"], theme: { paper: "#f3f0fd", surface: "#ffffff", ink: "#2c2342", muted: "#746989", accent: "#7557bf", accentSoft: "#ebe5fb" } },
+  { id: "coral", title: "Terracota cálida", description: "Marfil cálido con acento terracota.", colors: ["#f7ede7", "#fffaf6", "#b85539"], theme: { paper: "#f7efe9", surface: "#fffaf6", ink: "#3d2b27", muted: "#806d65", accent: "#b85539", accentSoft: "#f4ded4" } },
+  { id: "monochrome", title: "Monocromática", description: "Carbón, blanco y grises limpios.", colors: ["#17191d", "#f4f4f1", "#686d75"], theme: { paper: "#f1f2f1", surface: "#ffffff", ink: "#20242a", muted: "#68707a", accent: "#343a40", accentSoft: "#e5e7e8" } },
+];
+
+const previewPages: { id: PreviewPage; label: string }[] = [
+  { id: "home", label: "Inicio" },
+  { id: "services", label: "Servicios" },
+  { id: "about", label: "Sobre el proyecto" },
+  { id: "contact", label: "Contacto" },
 ];
 
 const goalContent: Record<Goal, { headline: string; description: string; sections: string[]; recommendation: string }> = {
@@ -56,6 +68,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   const t = (value: string) => translateCopy(value, language);
   const [goal, setGoal] = useState<Goal | "">("");
   const [style, setStyle] = useState<VisualStyle>("minimal");
+  const [activePreviewPage, setActivePreviewPage] = useState<PreviewPage>("home");
   const [projectName, setProjectName] = useState("");
   const [audience, setAudience] = useState("");
   const [concept, setConcept] = useState<Concept | null>(null);
@@ -69,6 +82,18 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   const goalDetail = goal ? goalContent[goal] : undefined;
   const chosenStyle = visualStyles.find((option) => option.id === style) ?? visualStyles[0];
   const name = projectName.trim() || t("Tu proyecto");
+  const conceptHeadline = conceptMode === "ai" ? concept?.headline ?? "" : t(concept?.headline ?? "").replace("{name}", name);
+  const conceptDescription = conceptMode === "ai" ? concept?.description ?? "" : t(concept?.description ?? "");
+  const conceptCta = conceptMode === "ai" ? concept?.cta ?? "" : t(concept?.cta ?? "");
+  const previewContactCta = t("Solicitar información");
+  const previewPageLabel = (page: PreviewPage) => page === "services" && goal === "workflow"
+    ? t("Funciones")
+    : t(previewPages.find((item) => item.id === page)?.label ?? "Inicio");
+  const sectionPageHeadline = goal === "workflow"
+    ? t("Funciones alrededor de tu proceso.")
+    : goal === "inquiries"
+      ? t("Información clara para dar el siguiente paso.")
+      : t("Servicios claros, organizados para tu audiencia.");
   useEffect(() => { startedAt.current = Date.now(); }, []);
 
   async function generate(event: FormEvent<HTMLFormElement>) {
@@ -78,6 +103,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
     setGenerationError("");
     setGenerationNotice("");
     setResultOpen(false);
+    setActivePreviewPage("home");
     try {
       const response = await fetch(`${apiBase}/api/idea-preview`, {
         method: "POST",
@@ -133,7 +159,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
         <fieldset className="idea-fieldset">
           <legend><span className="idea-step">01</span>{t("¿Para qué quieres la página?")}</legend>
           <div className="idea-goal-options">
-            {goals.map((option) => <button key={option.id} className="idea-choice" type="button" aria-pressed={goal === option.id} onClick={() => { setGoal(option.id); setConcept(null); setGenerationNotice(""); setGenerationError(""); setResultOpen(false); }}>
+            {goals.map((option) => <button key={option.id} className="idea-choice" type="button" aria-pressed={goal === option.id} onClick={() => { setGoal(option.id); setConcept(null); setGenerationNotice(""); setGenerationError(""); setResultOpen(false); setActivePreviewPage("home"); }}>
               <span className="idea-choice-icon" aria-hidden="true">{option.id === "present" ? <LayoutTemplate size={17} /> : option.id === "inquiries" ? <ArrowRight size={17} /> : <Monitor size={17} />}</span>
               <span><b>{t(option.title)}</b><small>{t(option.description)}</small></span>
               <span className="idea-choice-check" aria-hidden="true"><Check size={13} /></span>
@@ -143,19 +169,20 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
 
         <div className="idea-fields-row">
           <label>{t("¿Qué negocio o proyecto quieres presentar?")} <span>{t("OPCIONAL")}</span>
-            <input value={projectName} maxLength={70} onChange={(event) => { setProjectName(event.target.value); setConcept(null); setGenerationNotice(""); setResultOpen(false); }} placeholder={t("Ej. Estudio, tienda o servicio local")} />
+            <input value={projectName} maxLength={70} onChange={(event) => { setProjectName(event.target.value); setConcept(null); setGenerationNotice(""); setResultOpen(false); setActivePreviewPage("home"); }} placeholder={t("Ej. Estudio, tienda o servicio local")} />
           </label>
           <label>{t("¿A quién quieres llegar?")} <span>{t("OPCIONAL")}</span>
-            <input value={audience} maxLength={90} onChange={(event) => { setAudience(event.target.value); setConcept(null); setGenerationNotice(""); setResultOpen(false); }} placeholder={t("Ej. clientes de mi ciudad")} />
+            <input value={audience} maxLength={90} onChange={(event) => { setAudience(event.target.value); setConcept(null); setGenerationNotice(""); setResultOpen(false); setActivePreviewPage("home"); }} placeholder={t("Ej. clientes de mi ciudad")} />
           </label>
         </div>
 
         <fieldset className="idea-fieldset idea-style-fieldset">
           <legend><span className="idea-step">02</span>{t("¿Qué estilo se acerca más a tu gusto?")}</legend>
           <div className="idea-style-options">
-            {visualStyles.map((option) => <button key={option.id} className="idea-style-choice" type="button" aria-pressed={style === option.id} data-style={option.id} onClick={() => { setStyle(option.id); setConcept(null); setGenerationNotice(""); setResultOpen(false); }}>
+            {visualStyles.map((option) => <button key={option.id} className="idea-style-choice" type="button" aria-pressed={style === option.id} onClick={() => setStyle(option.id)}>
               <span className="idea-swatches" aria-hidden="true">{option.colors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</span>
-              <b>{t(option.title)}</b><small>{t(option.description)}</small>
+              <span className="idea-style-copy"><b>{t(option.title)}</b><small>{t(option.description)}</small></span>
+              {style === option.id && <Check className="idea-style-selected" size={14} aria-hidden="true" />}
             </button>)}
           </div>
         </fieldset>
@@ -177,16 +204,47 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
           <div className="idea-preview-label"><span><i />{conceptMode === "ai" ? t("VISTA PERSONALIZADA") : t("VISTA CONCEPTUAL")}</span><span>{t("EJEMPLO, NO ES UN PROYECTO REAL")}</span></div>
           {generationNotice && <p className="idea-notice" role="status">{generationNotice}</p>}
           <div className="idea-browser-frame">
-            <div className="idea-browser-top"><span><i /><i /><i /></span><b>{t("PÁGINA DE EJEMPLO")}</b><span>↗</span></div>
-            <div className="idea-browser-page">
-              <div className="idea-demo-nav"><b>{name}</b><span>{t("Servicios")}</span><span>{t("Contacto")}</span><span className="idea-demo-nav-cta">{t("Hablemos")}</span></div>
-              <div className="idea-demo-hero">
-                <span className="idea-demo-eyebrow">{t("UNA PROPUESTA PARA")}</span>
-                <h4>{conceptMode === "ai" ? concept.headline : t(concept.headline).replace("{name}", name)}</h4>
-                <p>{conceptMode === "ai" ? concept.description : t(concept.description)}{audience.trim() && conceptMode === "template" ? ` ${t("Pensada para")}: ${audience.trim()}.` : ""}</p>
-                <span className="idea-demo-cta">{conceptMode === "ai" ? concept.cta : t(concept.cta)} <ArrowRight size={12} /></span>
-              </div>
-              <div className="idea-demo-blocks">{concept.sections.map((section, index) => <div key={`${section.title}-${index}`} title={conceptMode === "ai" ? section.description : t(section.description)}><i>0{index + 1}</i><b>{conceptMode === "ai" ? section.title : t(section.title)}</b><span /></div>)}</div>
+            <div className="idea-browser-top"><span><i /><i /><i /></span><b>{t("VISTA DEL SITIO")}</b><span>↗</span></div>
+            <div className="idea-page-tabs" role="group" aria-label={t("Páginas de ejemplo")}>
+              {previewPages.map((page) => <button key={page.id} type="button" aria-pressed={activePreviewPage === page.id} onClick={() => setActivePreviewPage(page.id)}>{previewPageLabel(page.id)}</button>)}
+            </div>
+            <div className="idea-browser-page" style={{
+              "--demo-paper": chosenStyle.theme.paper,
+              "--demo-white": chosenStyle.theme.surface,
+              "--demo-ink": chosenStyle.theme.ink,
+              "--demo-muted": chosenStyle.theme.muted,
+              "--demo-accent": chosenStyle.theme.accent,
+              "--demo-accent-soft": chosenStyle.theme.accentSoft,
+            } as CSSProperties}>
+              <div className="idea-demo-nav"><b>{name}</b><span>{previewPageLabel(activePreviewPage)}</span><span className="idea-demo-nav-cta">{conceptCta}</span></div>
+              {activePreviewPage === "home" && <section key="home" className="idea-demo-screen">
+                <div className="idea-demo-home">
+                  <div className="idea-demo-hero">
+                    <span className="idea-demo-eyebrow">{t("UNA PROPUESTA PARA")}</span>
+                    <h4>{conceptHeadline}</h4>
+                    <p>{conceptDescription}{audience.trim() && conceptMode === "template" ? ` ${t("Pensada para")}: ${audience.trim()}.` : ""}</p>
+                    <span className="idea-demo-cta">{conceptCta} <ArrowRight size={13} /></span>
+                  </div>
+                  <div className="idea-demo-art" aria-hidden="true">
+                    <div className="idea-demo-art-orbit" />
+                    <div className="idea-demo-art-window"><i /><i /><i /><span /><span /><b /></div>
+                    <div className="idea-demo-art-badge"><Sparkles size={14} /></div>
+                  </div>
+                </div>
+                <div className="idea-demo-blocks">{concept.sections.map((section, index) => <div key={`${section.title}-${index}`}><i>0{index + 1}</i><b>{conceptMode === "ai" ? section.title : t(section.title)}</b><span>{conceptMode === "ai" ? section.description : t(section.description)}</span></div>)}</div>
+              </section>}
+              {activePreviewPage === "services" && <section key="services" className="idea-demo-screen">
+                <div className="idea-demo-page-heading"><span className="idea-demo-eyebrow">{t("UNA ESTRUCTURA PARA PRESENTAR LO QUE HACES")}</span><h4>{sectionPageHeadline}</h4><p>{conceptDescription}</p></div>
+                <div className="idea-demo-service-grid">{concept.sections.map((section, index) => <article key={`${section.title}-${index}`}><span>0{index + 1}</span><h5>{conceptMode === "ai" ? section.title : t(section.title)}</h5><p>{conceptMode === "ai" ? section.description : t(section.description)}</p><i aria-hidden="true" /></article>)}</div>
+              </section>}
+              {activePreviewPage === "about" && <section key="about" className="idea-demo-screen idea-demo-about">
+                <div className="idea-demo-about-visual" aria-hidden="true"><span>{t("ESPACIO PARA TU HISTORIA")}</span><div><i /><i /><i /></div></div>
+                <div className="idea-demo-about-copy"><span className="idea-demo-eyebrow">{t("SOBRE EL PROYECTO")}</span><h4>{t("Una página para contar quién está detrás de {name}").replace("{name}", name)}</h4><p>{t("Este espacio se completa contigo: tu historia, experiencia y forma de trabajo.")}</p><ul><li>{t("Tu recorrido")}</li><li>{t("Tu forma de trabajar")}</li><li>{t("Qué te distingue")}</li></ul></div>
+              </section>}
+              {activePreviewPage === "contact" && <section key="contact" className="idea-demo-screen idea-demo-contact">
+                <div className="idea-demo-contact-copy"><span className="idea-demo-eyebrow">{t("UN SIGUIENTE PASO CLARO")}</span><h4>{t("Conversemos sobre tu proyecto.")}</h4><p>{conceptDescription}</p><span className="idea-demo-cta">{previewContactCta} <ArrowRight size={13} /></span></div>
+                <div className="idea-demo-form" role="group" aria-label={t("Formulario de ejemplo")}><b>{t("Formulario de contacto")}</b><span>{t("Nombre")}</span><i /><span>{t("Correo electrónico")}</span><i /><span>{t("¿Qué necesitas?")}</span><i className="idea-demo-form-message" /><strong>{previewContactCta}</strong><small>{t("Vista de ejemplo, no envía información.")}</small></div>
+              </section>}
             </div>
           </div>
           <div className="idea-recommendation">

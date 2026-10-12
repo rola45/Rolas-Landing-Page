@@ -28,8 +28,10 @@ function subscribeToPreferences(callback: () => void) {
   return () => { window.removeEventListener("storage", notify); window.removeEventListener(preferenceEvent, notify); };
 }
 function readThemePreference(): Theme {
-  try { return window.localStorage.getItem("rv-solutions-theme") === "dark" ? "dark" : "light"; }
-  catch { return temporaryTheme ?? "light"; }
+  try {
+    const saved = window.localStorage.getItem("rv-solutions-theme");
+    return saved === "light" ? "light" : saved === "dark" ? "dark" : temporaryTheme ?? "dark";
+  } catch { return temporaryTheme ?? "dark"; }
 }
 function readLanguagePreference(): SiteLanguage {
   try { return window.localStorage.getItem("rv-solutions-language") === "en" ? "en" : "es"; }
@@ -281,7 +283,7 @@ function resolveMedia(path: string, apiBase: string) {
 }
 
 export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad", assetBase = "/" }: { content: SiteContent; apiBase?: string; privacyHref?: string; assetBase?: string }) {
-  const theme = useSyncExternalStore(subscribeToPreferences, readThemePreference, () => "light" as Theme);
+  const theme = useSyncExternalStore(subscribeToPreferences, readThemePreference, () => "dark" as Theme);
   const language = useSyncExternalStore(subscribeToPreferences, readLanguagePreference, () => "es" as SiteLanguage);
   const [leadDraft, setLeadDraft] = useState("");
   const siteOrigin = apiBase || "https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site";
