@@ -3,7 +3,7 @@
 import { cloneElement, createContext, isValidElement, useContext, useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, Code2, Cpu, ExternalLink, Globe2, MessageCircle, MonitorCog, Moon, Sparkles, Sun, Wrench } from "lucide-react";
-import type { SiteContent } from "@/lib/content-types";
+import type { LocalizedText, SiteContent } from "@/lib/content-types";
 import { translateCopy, translateSiteContent, type SiteLanguage } from "@/lib/site-translation";
 import { LeadForm } from "@/app/components/lead-form";
 import { IdeaPreview } from "@/app/components/idea-preview";
@@ -13,6 +13,7 @@ type Theme = "light" | "dark";
 const SiteLanguageContext = createContext<SiteLanguage>("es");
 function useSiteLanguage() { return useContext(SiteLanguageContext); }
 function tx(language: SiteLanguage, value: string) { return translateCopy(value, language); }
+function copy(language: SiteLanguage, value: LocalizedText) { return value[language] || value.es; }
 
 const preferenceEvent = "rv-solutions-preference-change";
 let temporaryTheme: Theme | undefined;
@@ -138,11 +139,11 @@ function SectionHeader({ kicker, title, text, dark = false }: { kicker: string; 
 
 const digitalIcons = [Code2, Globe2, Sparkles];
 const supportIcons = [Wrench, MonitorCog, Cpu];
-function ServiceGroup({ title, note, items, group }: { title: string; note: string; items: SiteContent["services"]["digital"]; group: string }) {
+function ServiceGroup({ title, note, label, items, group }: { title: string; note: string; label: string; items: SiteContent["services"]["digital"]; group: string }) {
   const language = useSiteLanguage();
   const icons = group === "digital" ? digitalIcons : supportIcons;
   return <div className={`service-group service-group-${group}`}>
-      <div className="service-group-heading" data-reveal><div><span className="group-kicker">{group === "digital" ? "01 / DIGITAL" : `02 / ${tx(language, "EQUIPOS")}`}</span><h3>{title}</h3></div><p>{note}</p></div>
+      <div className="service-group-heading" data-reveal><div><span className="group-kicker">{label}</span><h3>{title}</h3></div><p>{note}</p></div>
     <div className="service-list">
       {items.filter((item) => item.visible).map((item, index) => { const Icon = icons[index % icons.length]; return <article key={item.id} className="service-row" data-reveal style={{ "--reveal-delay": `${index * 75}ms` } as CSSProperties}>
         <span className="service-index">{String(index + 1).padStart(2, "0")}</span>
@@ -156,38 +157,29 @@ function ServiceGroup({ title, note, items, group }: { title: string; note: stri
 
 function Services({ content, apiBase, onRequestQuote }: { content: SiteContent; apiBase: string; onRequestQuote: (summary: string) => void }) {
   const language = useSiteLanguage();
+  const copySet = content.pageCopy.services;
   return <section id="servicios" className="section section-services">
-    <div className="section-shell"><SectionHeader kicker="LO QUE PUEDO HACER POR TI" title={<>Tecnología útil.<br /><span>Trabajo que fluye.</span></>} text="Servicios pensados para resolver necesidades reales, desde una idea digital hasta el equipo que usas todos los días." />
-      <ServiceGroup title={tx(language, "Desarrollo digital")} note={tx(language, "De la idea a una herramienta clara, rápida y funcional.")} items={content.services.digital} group="digital" />
-      <ServiceGroup title={tx(language, "Soporte a equipos")} note={tx(language, "Cuidado y mejoras para que la tecnología te acompañe.")} items={content.services.equipment} group="equipment" />
+    <div className="section-shell"><SectionHeader kicker={copy(language, copySet.kicker)} title={<>{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></>} text={copy(language, copySet.description)} />
+      <ServiceGroup label={copy(language, copySet.digitalLabel)} title={copy(language, copySet.digitalTitle)} note={copy(language, copySet.digitalDescription)} items={content.services.digital} group="digital" />
+      <ServiceGroup label={copy(language, copySet.equipmentLabel)} title={copy(language, copySet.equipmentTitle)} note={copy(language, copySet.equipmentDescription)} items={content.services.equipment} group="equipment" />
       <IdeaPreview language={language} apiBase={apiBase} onRequestQuote={onRequestQuote} />
     </div>
   </section>;
 }
 
-const technologies = [
-  { name: "Next.js", icon: "nextjs" }, { name: "React", icon: "react" },
-  { name: "TypeScript", icon: "typescript" }, { name: "Vite", icon: "vite" },
-  { name: "Tailwind CSS", icon: "tailwindcss" }, { name: "Python", icon: "python" },
-  { name: "FastAPI", icon: "fastapi" }, { name: "NestJS", icon: "nestjs" },
-  { name: "Prisma", icon: "prisma" }, { name: "PostgreSQL", icon: "postgresql" },
-  { name: "Cloudflare", icon: "cloudflare" }, { name: "Render", icon: "render" },
-  { name: "Docker", icon: "docker" }, { name: "Rust", icon: "rust" },
-  { name: "Tauri", icon: "tauri" }, { name: "Swift", icon: "swift" },
-];
-
-function TechnologyPanel({ assetBase }: { assetBase: string }) {
+function TechnologyPanel({ content, assetBase }: { content: SiteContent; assetBase: string }) {
   const language = useSiteLanguage();
   const base = assetBase.endsWith("/") ? assetBase : `${assetBase}/`;
+  const copySet = content.pageCopy.technologies;
   return <div className="section-shell technology-panel" data-reveal aria-labelledby="technology-panel-title">
     <div className="technology-panel-copy">
-      <Eyebrow>TECNOLOGÍAS EN PROYECTOS</Eyebrow>
-      <h3 id="technology-panel-title">{tx(language, "Herramientas para")}<br /><span>{tx(language, "cada tipo de reto.")}</span></h3>
-      <p>{tx(language, "Una selección de tecnologías utilizadas en proyectos web, sistemas, infraestructura y aplicaciones de escritorio.")}</p>
-      <span className="technology-panel-note">{tx(language, "La combinación se adapta a cada solución.")}</span>
+      <Eyebrow>{copy(language, copySet.kicker)}</Eyebrow>
+      <h3 id="technology-panel-title">{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></h3>
+      <p>{copy(language, copySet.description)}</p>
+      <span className="technology-panel-note">{copy(language, copySet.note)}</span>
     </div>
     <ul className="technology-grid" aria-label={tx(language, "Tecnologías utilizadas")}>
-      {technologies.map((technology) => <li className="technology-card" key={technology.name}>
+      {content.technologies.filter((technology) => technology.visible).map((technology) => <li className="technology-card" key={technology.id}>
         <img src={`${base}assets/technology-icons/${technology.icon}.svg`} alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <span>{technology.name}</span>
       </li>)}
@@ -205,25 +197,26 @@ function About({ content, apiBase, assetBase }: { content: SiteContent; apiBase:
           <div className="portrait-tag"><span className="status-pulse" />{content.brandName}</div>
         </div>
         <span className="about-orbit about-orbit-one" /><span className="about-orbit about-orbit-two" />
-        <span className="about-coordinate">{tx(language, "TECNOLOGÍA · DISEÑO · SOPORTE")}</span>
+        <span className="about-coordinate">{copy(language, content.pageCopy.about.artLabel)}</span>
       </div>
       <div className="about-copy" data-reveal>
-        <Eyebrow>UNA PERSONA DETRÁS DE LA SOLUCIÓN</Eyebrow>
+        <Eyebrow>{copy(language, content.pageCopy.about.kicker)}</Eyebrow>
         <h2>{content.aboutTitle}</h2>
         <p>{content.aboutText}</p>
         <div className="about-signature"><span className="signature-line" /><div><b>{content.displayName}</b><span>{content.role}</span></div></div>
-        <a className="text-link" href="#contacto">{tx(language, "Cuéntame qué necesitas")} <ArrowRight size={16} /></a>
+        <a className="text-link" href="#contacto">{copy(language, content.pageCopy.about.action)} <ArrowRight size={16} /></a>
       </div>
     </div>
-    <TechnologyPanel assetBase={assetBase} />
+    <TechnologyPanel content={content} assetBase={assetBase} />
   </section>;
 }
 
 function Portfolio({ content, apiBase }: { content: SiteContent; apiBase: string }) {
   const language = useSiteLanguage();
+  const copySet = content.pageCopy.portfolio;
   const projects = content.projects.filter((project) => project.visible);
   if (!content.projectsEnabled || !projects.length) return null;
-  return <section id="proyectos" className="section section-portfolio"><div className="section-shell"><SectionHeader kicker="PROYECTOS SELECCIONADOS" title={<>Ideas que toman<br /><span>forma digital.</span></>} text="Una selección de proyectos y soluciones desarrolladas." />
+  return <section id="proyectos" className="section section-portfolio"><div className="section-shell"><SectionHeader kicker={copy(language, copySet.kicker)} title={<>{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></>} text={copy(language, copySet.description)} />
     <div className="project-grid">{projects.map((project, index) => <article className="project-card" key={project.id} data-reveal style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}>
       <div className="project-image">{project.image ? <img src={resolveMedia(project.image, apiBase)} alt={project.imageAlt || project.title} loading="lazy" /> : <div className="project-image-placeholder"><span>RV / {String(index + 1).padStart(2, "0")}</span></div>}</div>
       <div className="project-copy"><span className="group-kicker">{tx(language, "PROYECTO")}</span><h3>{project.title}</h3><p>{project.description}</p>{project.url && <a href={project.url} target="_blank" rel="noreferrer" className="text-link">{tx(language, "Ver proyecto")} <ExternalLink size={15} /></a>}</div>
@@ -232,16 +225,19 @@ function Portfolio({ content, apiBase }: { content: SiteContent; apiBase: string
 }
 
 function Process({ content }: { content: SiteContent }) {
+  const language = useSiteLanguage();
+  const copySet = content.pageCopy.process;
   const steps = content.processSteps.filter((item) => item.visible);
-  return <section id="proceso" className="section section-process"><div className="section-shell"><SectionHeader kicker="ASÍ TRABAJAMOS" title={<>Un camino claro,<br /><span>de principio a fin.</span></>} text="Cada proyecto comienza por entender lo que necesitas y avanza con acuerdos claros." />
+  return <section id="proceso" className="section section-process"><div className="section-shell"><SectionHeader kicker={copy(language, copySet.kicker)} title={<>{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></>} text={copy(language, copySet.description)} />
     <div className="process-track" data-reveal>{steps.map((item, index) => <article className="process-step" key={item.id} style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}><div className="process-marker"><span>{String(index + 1).padStart(2, "0")}</span></div><div className="process-copy"><h3>{item.title}</h3><p>{item.description}</p></div></article>)}</div>
   </div></section>;
 }
 
 function Faq({ content }: { content: SiteContent }) {
   const language = useSiteLanguage();
+  const copySet = content.pageCopy.faq;
   return <section id="preguntas" className="section section-faq"><div className="section-shell faq-layout">
-    <div><SectionHeader kicker="PREGUNTAS FRECUENTES" title={<>Hablemos claro<br /><span>desde el inicio.</span></>} text="Respuestas breves para ayudarte a dar el siguiente paso." /><a className="text-link faq-contact-link" href="#contacto">{tx(language, "¿Tienes otra pregunta? Escríbeme")} <ArrowRight size={16} /></a></div>
+    <div><SectionHeader kicker={copy(language, copySet.kicker)} title={<>{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></>} text={copy(language, copySet.description)} /><a className="text-link faq-contact-link" href="#contacto">{copy(language, copySet.action)} <ArrowRight size={16} /></a></div>
     <div className="faq-list">{content.faqs.filter((item) => item.visible).map((item, index) => <FaqRow item={item} key={item.id} index={index} />)}</div>
   </div></section>;
 }
@@ -257,6 +253,7 @@ function FaqRow({ item, index }: { item: SiteContent["faqs"][number]; index: num
 
 function Contact({ content, apiBase, privacyHref, draftMessage, assetBase }: { content: SiteContent; apiBase: string; privacyHref: string; draftMessage: string; assetBase: string }) {
   const language = useSiteLanguage();
+  const copySet = content.pageCopy.contact;
   const base = assetBase.endsWith("/") ? assetBase : `${assetBase}/`;
   const quoteUrl = "https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site/#contacto";
   const whatsapp = content.contact.whatsappNumber.replace(/\D/g, "");
@@ -266,9 +263,9 @@ function Contact({ content, apiBase, privacyHref, draftMessage, assetBase }: { c
     whatsapp && { label: "WhatsApp", value: tx(language, "Enviar mensaje"), href: `https://wa.me/${whatsapp}`, icon: "whatsapp" },
   ].filter(Boolean) as { label: string; value: string; href: string; icon: string }[];
   return <section id="contacto" className="section section-contact"><div className="section-shell contact-shell">
-    <div className="contact-intro" data-reveal><Eyebrow>EL PRIMER PASO ES CONVERSAR</Eyebrow><h2>{tx(language, "¿Qué te gustaría")}<br /><span>{tx(language, "hacer posible?")}</span></h2><p>{tx(language, "Cuéntame sobre tu idea o el problema que necesitas resolver. Revisaré tu solicitud y podremos definir el siguiente paso.")}</p>
+    <div className="contact-intro" data-reveal><Eyebrow>{copy(language, copySet.kicker)}</Eyebrow><h2>{copy(language, copySet.titlePrimary)}<br /><span>{copy(language, copySet.titleSecondary)}</span></h2><p>{copy(language, copySet.description)}</p>
       {contactMethods.length > 0 && <div className="contact-methods">{contactMethods.map((item) => <a key={item.label} href={item.href} target={item.icon === "whatsapp" ? "_blank" : undefined} rel={item.icon === "whatsapp" ? "noreferrer" : undefined}><span>{item.icon === "whatsapp" ? <MessageCircle size={17} /> : item.icon === "phone" ? <MonitorCog size={17} /> : <Globe2 size={17} />}</span><span><small>{item.label}</small><b>{item.value}</b></span><ArrowUpRight size={15} className="contact-arrow" /></a>)}</div>}
-      <div className="quote-qr-card"><a className="quote-qr-image" href={quoteUrl} target="_blank" rel="noreferrer" aria-label={tx(language, "Abrir el formulario de cotización en otra ventana")}><img src={`${base}assets/qr-solicitar-cotizacion.svg`} alt={tx(language, "Código QR para abrir el formulario de cotización")} width="112" height="112" loading="lazy" decoding="async" /></a><div><span>{tx(language, "ACCESO RÁPIDO")}</span><b>{tx(language, "¿Vas a continuar desde otro dispositivo?")}</b><a href={quoteUrl} target="_blank" rel="noreferrer">{tx(language, "Escanea y solicita una cotización")} <ArrowUpRight size={13} /></a></div></div>
+      <div className="quote-qr-card"><a className="quote-qr-image" href={quoteUrl} target="_blank" rel="noreferrer" aria-label={tx(language, "Abrir el formulario de cotización en otra ventana")}><img src={`${base}assets/qr-solicitar-cotizacion.svg`} alt={tx(language, "Código QR para abrir el formulario de cotización")} width="112" height="112" loading="lazy" decoding="async" /></a><div><span>{copy(language, copySet.qrEyebrow)}</span><b>{copy(language, copySet.qrTitle)}</b><a href={quoteUrl} target="_blank" rel="noreferrer">{copy(language, copySet.qrAction)} <ArrowUpRight size={13} /></a></div></div>
       <div className="contact-socials">{content.socials.filter((social) => social.visible && social.url).map((social) => <a key={social.id} href={social.url} target="_blank" rel="noreferrer">{social.label}<ArrowUpRight size={13} /></a>)}</div>
     </div>
       <div className="contact-form-wrap" data-reveal><div className="form-heading"><span className="form-number">01 / {tx(language, "CONTACTO")}</span><span className="form-mark">RV.</span></div><LeadForm language={language} apiBase={apiBase} privacyHref={privacyHref} initialMessage={draftMessage} services={[...content.services.digital, ...content.services.equipment].filter((item) => item.visible).map((item) => item.title)} /></div>
@@ -277,8 +274,10 @@ function Contact({ content, apiBase, privacyHref, draftMessage, assetBase }: { c
 
 function Footer({ content, privacyHref }: { content: SiteContent; privacyHref: string }) {
   const language = useSiteLanguage();
+  const copySet = content.pageCopy.footer;
+  const social = content.socials.find((item) => item.visible && item.url);
   const year = new Date().getFullYear();
-  return <footer className="site-footer"><div className="footer-main"><a className="brand-lockup footer-brand" href="#inicio"><span className="brand-mark">RV<span>.</span></span><span className="brand-name">{content.brandName}</span></a><p>{tx(language, "Desarrollo y soporte tecnológico")}<br />{tx(language, "por")} {content.displayName}.</p><a className="footer-back" href="#inicio">{tx(language, "Volver al inicio")} <ArrowUpRight size={15} /></a></div><div className="footer-bottom"><span>© {year} {content.brandName}. {tx(language, "Todos los derechos reservados.")}</span><div><a href={privacyHref}>{tx(language, "Aviso de privacidad")}</a><a href="https://www.facebook.com/rolando.victorio/" target="_blank" rel="noreferrer">{tx(language, "Redes sociales")}</a></div></div></footer>;
+  return <footer className="site-footer"><div className="footer-main"><a className="brand-lockup footer-brand" href="#inicio"><span className="brand-mark">RV<span>.</span></span><span className="brand-name">{content.brandName}</span></a><p>{copy(language, copySet.tagline)}<br />{tx(language, "por")} {content.displayName}.</p><a className="footer-back" href="#inicio">{copy(language, copySet.backToTop)} <ArrowUpRight size={15} /></a></div><div className="footer-bottom"><span>© {year} {content.brandName}. {tx(language, "Todos los derechos reservados.")}</span><div><a href={privacyHref}>{copy(language, copySet.privacy)}</a><a href={social?.url || "#contacto"} target={social?.url ? "_blank" : undefined} rel={social?.url ? "noreferrer" : undefined}>{copy(language, copySet.socials)}</a></div></div></footer>;
 }
 
 function resolveMedia(path: string, apiBase: string) {
@@ -315,10 +314,12 @@ export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad"
   };
   const structuredData = { "@context": "https://schema.org", "@type": "Person", name: localizedContent.displayName, jobTitle: localizedContent.role, url: siteOrigin, brand: { "@type": "Brand", name: localizedContent.brandName }, sameAs: localizedContent.socials.filter((item) => item.visible && item.url).map((item) => item.url) };
   return <SiteLanguageContext.Provider value={language}>
-    <ScrollEffects />
-    <Header content={localizedContent} sections={sections} theme={theme} onThemeToggle={toggleTheme} onLanguageToggle={toggleLanguage} />
-    <main><Hero content={localizedContent} apiBase={apiBase} />{sections.map((key) => sectionComponents[key])}</main>
-    <Footer content={localizedContent} privacyHref={privacyHref} />
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <div className="public-site" style={{ "--blue": content.accentColor, "--blue-bright": content.accentColor } as CSSProperties}>
+      <ScrollEffects />
+      <Header content={localizedContent} sections={sections} theme={theme} onThemeToggle={toggleTheme} onLanguageToggle={toggleLanguage} />
+      <main><Hero content={localizedContent} apiBase={apiBase} />{sections.map((key) => sectionComponents[key])}</main>
+      <Footer content={localizedContent} privacyHref={privacyHref} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    </div>
   </SiteLanguageContext.Provider>;
 }

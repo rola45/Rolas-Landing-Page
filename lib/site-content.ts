@@ -3,12 +3,24 @@ import { z } from "zod";
 import { DEFAULT_CONTENT } from "./default-content";
 import type { SiteContent } from "./content-types";
 export { DEFAULT_CONTENT } from "./default-content";
-export type { SiteContent, ServiceItem, ProjectItem, FaqItem, ProcessStep } from "./content-types";
+export type { SiteContent, ServiceItem, ProjectItem, FaqItem, ProcessStep, LocalizedText, TechnologyItem, TechnologyIcon, PageCopy } from "./content-types";
 
 const safeImage = z.string().max(500).refine((v) => !v || v.startsWith("/media/images/") || /^https:\/\//i.test(v));
 const serviceSchema = z.object({ id: z.string().min(1).max(80), title: z.string().trim().min(1).max(100), description: z.string().trim().max(500), visible: z.boolean() }).strict();
 const idText = z.string().min(1).max(100);
 const httpsOrEmpty = z.string().max(500).refine((v) => !v || /^https:\/\//i.test(v));
+const localizedTextSchema = z.object({ es: z.string().trim().max(500), en: z.string().trim().max(500) }).strict();
+const copySection = <T extends Record<string, z.ZodTypeAny>>(shape: T) => z.object(shape).strict();
+const pageCopySchema = z.object({
+  services: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema, digitalLabel: localizedTextSchema, digitalTitle: localizedTextSchema, digitalDescription: localizedTextSchema, equipmentLabel: localizedTextSchema, equipmentTitle: localizedTextSchema, equipmentDescription: localizedTextSchema }),
+  technologies: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema, note: localizedTextSchema }),
+  about: copySection({ kicker: localizedTextSchema, action: localizedTextSchema, artLabel: localizedTextSchema }),
+  portfolio: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema }),
+  process: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema }),
+  faq: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema, action: localizedTextSchema }),
+  contact: copySection({ kicker: localizedTextSchema, titlePrimary: localizedTextSchema, titleSecondary: localizedTextSchema, description: localizedTextSchema, qrEyebrow: localizedTextSchema, qrTitle: localizedTextSchema, qrAction: localizedTextSchema }),
+  footer: copySection({ tagline: localizedTextSchema, backToTop: localizedTextSchema, privacy: localizedTextSchema, socials: localizedTextSchema }),
+}).strict();
 
 export const siteContentSchema = z.object({
   brandName: z.string().trim().min(1).max(80),
@@ -32,6 +44,9 @@ export const siteContentSchema = z.object({
   }).strict(),
   socials: z.array(z.object({ id: idText, label: z.string().trim().min(1).max(60), url: httpsOrEmpty, visible: z.boolean() }).strict()).max(12),
   services: z.object({ digital: z.array(serviceSchema).max(20), equipment: z.array(serviceSchema).max(20) }).strict(),
+  technologies: z.array(z.object({ id: idText, name: z.string().trim().min(1).max(60), icon: z.enum(["nextjs", "react", "typescript", "vite", "tailwindcss", "python", "fastapi", "nestjs", "prisma", "postgresql", "cloudflare", "render", "docker", "rust", "tauri", "swift"]), visible: z.boolean() }).strict()).max(32).optional(),
+  pageCopy: pageCopySchema.optional(),
+  accentColor: z.enum(["#3778f6", "#7048e8", "#087e8b", "#c2410c", "#15803d"]).optional(),
   projects: z.array(z.object({ id: idText, title: z.string().trim().min(1).max(120), description: z.string().trim().max(700), image: safeImage, imageAlt: z.string().trim().max(180), url: httpsOrEmpty, visible: z.boolean() }).strict()).max(30),
   projectsEnabled: z.boolean(),
   processSteps: z.array(z.object({ id: idText, title: z.string().trim().min(1).max(100), description: z.string().trim().max(500), visible: z.boolean() }).strict()).max(10),
@@ -43,6 +58,10 @@ export const siteContentSchema = z.object({
   .refine((value) => new Set(value.sectionsOrder).size === 6, { message: "El orden de secciones contiene valores repetidos." })
   .transform((value) => ({
     ...value,
+    // Add CMS fields without invalidating content saved by older versions.
+    technologies: value.technologies ?? DEFAULT_CONTENT.technologies,
+    pageCopy: value.pageCopy ?? DEFAULT_CONTENT.pageCopy,
+    accentColor: value.accentColor ?? DEFAULT_CONTENT.accentColor,
     // Older CMS payloads used one portrait for both areas. Preserve it in the hero
     // during migration; future edits can change either image independently.
     heroImage: value.heroImage ?? value.profileImage,
