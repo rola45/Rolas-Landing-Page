@@ -263,6 +263,7 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .hero-visual { width: min(100%, 440px); }
   .section { padding-inline: 54px; }
   .contact-shell { gap: 44px; }
+  .technology-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 940px) {
@@ -282,9 +283,10 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .faq-layout .section-heading { margin-bottom: 18px; }
   .section { padding-block: clamp(72px, 9vw, 112px); }
   .technology-panel { grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: 28px; padding: 30px; }
-  .technology-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
-  .technology-card { gap: 7px; padding-inline: 8px; }
-  .technology-card span { font-size: 10px; }
+  .technology-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .technology-card { gap: 9px; padding-inline: 11px; }
+  .technology-card img { width: 23px; height: 23px; }
+  .technology-card span { font-size: 11px; }
 }
 
 @media (max-width: 760px) {
