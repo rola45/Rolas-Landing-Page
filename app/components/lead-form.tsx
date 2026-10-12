@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowUpRight, LoaderCircle } from "lucide-react";
+import { ArrowUpRight, ChevronDown, LoaderCircle } from "lucide-react";
 import { translateCopy, type SiteLanguage } from "@/lib/site-translation";
 
 type LeadFormProps = { services: string[]; language?: SiteLanguage; apiBase?: string; privacyHref?: string; initialMessage?: string };
@@ -11,6 +11,7 @@ export function LeadForm({ services, language = "es", apiBase = "", privacyHref 
   const startedAt = useRef(0);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const [selectedService, setSelectedService] = useState("");
   const [draftState, setDraftState] = useState({ source: initialMessage, value: initialMessage });
   const draftMessage = draftState.source === initialMessage ? draftState.value : initialMessage;
   const [complete, setComplete] = useState(false);
@@ -35,6 +36,7 @@ export function LeadForm({ services, language = "es", apiBase = "", privacyHref 
       setComplete(true);
       setMessage("Gracias. Tu solicitud quedó registrada y podré revisarla.");
       setDraftState({ source: initialMessage, value: "" });
+      setSelectedService("");
       formElement.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No fue posible enviar tu solicitud. Intenta de nuevo.");
@@ -45,7 +47,7 @@ export function LeadForm({ services, language = "es", apiBase = "", privacyHref 
 
   return <form className="lead-form" onSubmit={submit}>
     <div className="form-row"><label>{t("Nombre completo")}<input name="name" autoComplete="name" required minLength={2} maxLength={100} placeholder={t("¿Cómo te llamas?")} /></label><label>{t("Correo electrónico")}<input name="email" type="email" autoComplete="email" required maxLength={254} placeholder={t("tunombre@correo.com")} /></label></div>
-    <div className="form-row"><label>{t("Teléfono")} <span className="optional">{t("OPCIONAL")}</span><input name="phone" type="tel" autoComplete="tel" maxLength={40} placeholder={t("Tu número de contacto")} /></label><label>{t("¿Qué necesitas?")}<select name="service" defaultValue=""><option value="">{t("Selecciona un servicio")}</option>{services.map((service) => <option key={service} value={service}>{service}</option>)}<option value={t("Privacidad y datos")}>{t("Privacidad y datos")}</option><option value={t("Otro / Consulta general")}>{t("Otro / Consulta general")}</option></select></label></div>
+    <div className="form-row"><label>{t("Teléfono")} <span className="optional">{t("OPCIONAL")}</span><input name="phone" type="tel" autoComplete="tel" maxLength={40} placeholder={t("Tu número de contacto")} /></label><label>{t("¿Qué necesitas?")}<span className="service-select-shell"><span className={`service-select-value${selectedService ? " has-value" : ""}`} aria-hidden="true">{selectedService || t("Selecciona un servicio")}</span><ChevronDown className="service-select-chevron" size={16} aria-hidden="true" /><select name="service" value={selectedService} onChange={(event) => setSelectedService(event.target.value)} aria-label={t("¿Qué necesitas?")}><option value="">{t("Selecciona un servicio")}</option>{services.map((service) => <option key={service} value={service}>{service}</option>)}<option value={t("Privacidad y datos")}>{t("Privacidad y datos")}</option><option value={t("Otro / Consulta general")}>{t("Otro / Consulta general")}</option></select></span></label></div>
     <label>{t("Cuéntame un poco más")}<textarea name="message" required minLength={10} maxLength={2000} rows={4} value={draftMessage} onChange={(event) => setDraftState({ source: initialMessage, value: event.target.value })} placeholder={t("¿Qué te gustaría resolver o desarrollar?")} /></label>
     <label className="consent-row"><input name="consent" type="checkbox" required /><span>{t("Autorizo el uso de estos datos para responder mi solicitud.")} {t("Consulta el")} <a href={privacyHref} target="_blank" rel="noreferrer">{t("Aviso de privacidad")}</a>.</span></label>
     <div className="honeypot" aria-hidden="true"><label htmlFor="website-field">{t("Deja este campo vacío")}</label><input id="website-field" name="website" tabIndex={-1} autoComplete="off" /></div>

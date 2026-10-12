@@ -602,34 +602,18 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
 :root[data-theme="dark"] .form-success .text-link { color: #a6c2ff; }
 :root[data-theme="dark"] .site-footer { border-top-color: rgb(255 255 255 / 12%); background: #0d1015; }
 
-/* Keep the native service selector visually aligned with the contact fields. */
-.contact-form-wrap .lead-form select {
-  -webkit-appearance: none;
-  appearance: none;
-  border-color: #cfd5de;
-  border-radius: 3px;
-  color: #20242b;
-  color-scheme: light;
-  background-color: #fff;
-}
-.contact-form-wrap .lead-form select:focus {
-  border-color: #438bff;
-  color-scheme: light;
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgb(20 110 245 / 13%);
-}
-:root[data-theme="dark"] .contact-form-wrap .lead-form select {
-  border-color: #4a5564;
-  color: #edf2f8;
-  color-scheme: dark;
-  background-color: #131820;
-}
-:root[data-theme="dark"] .contact-form-wrap .lead-form select:focus {
-  border-color: #75a6ff;
-  color-scheme: dark;
-  background-color: #131820;
-  box-shadow: 0 0 0 3px rgb(91 148 255 / 22%);
-}
+/* Keep the native service menu, while drawing its closed state consistently. */
+.service-select-shell { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; height: 42px; min-width: 0; padding: 0 11px; overflow: hidden; border: 1px solid #cfd5de; border-radius: 3px; color: #20242b; background: #fff; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.service-select-value { min-width: 0; overflow: hidden; color: #626b76; font-size: 12px; font-weight: 430; text-overflow: ellipsis; white-space: nowrap; }
+.service-select-value.has-value { color: #20242b; }
+.service-select-chevron { flex: 0 0 auto; color: #59636f; pointer-events: none; }
+.service-select-shell > select { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
+.service-select-shell:focus-within { border-color: #438bff; box-shadow: 0 0 0 3px rgb(20 110 245 / 13%); }
+:root[data-theme="dark"] .service-select-shell { border-color: #4a5564; color: #edf2f8; background: #131820; }
+:root[data-theme="dark"] .service-select-value { color: #a6b1bf; }
+:root[data-theme="dark"] .service-select-value.has-value { color: #edf2f8; }
+:root[data-theme="dark"] .service-select-chevron { color: #b9c5d3; }
+:root[data-theme="dark"] .service-select-shell:focus-within { border-color: #75a6ff; box-shadow: 0 0 0 3px rgb(91 148 255 / 22%); }
 
 :root[data-theme="dark"] .technology-card { border-color: #e2e6ec; color: #242a33; background: #f8fafc; }
 :root[data-theme="dark"] .technology-card span { color: #29313b; }
