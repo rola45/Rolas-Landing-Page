@@ -179,6 +179,7 @@ const englishCopy: Record<string, string> = {
   "Cuando la generación personalizada está activa, tus respuestas se envían a Gemini. No incluyas datos personales ni información confidencial; no se guardan como solicitud.": "When personalized generation is enabled, your answers are sent to Gemini. Do not include personal or confidential information; they are not stored as an inquiry.",
   "Preparando la vista": "Preparing your preview",
   "La maqueta base está disponible; falta configurar el servicio de generación personalizada.": "The starter mockup is available; the personalized generation service still needs configuration.",
+  "El servicio de generación no respondió; puedes continuar con la maqueta y personalizar su diseño.": "The generation service did not respond; you can continue with the mockup and customize its design.",
   "Alcanzaste el límite temporal. Inténtalo más tarde.": "You reached the temporary limit. Please try again later.",
   "No se pudo preparar la vista ahora. Revisa tu conexión e inténtalo de nuevo.": "The preview could not be prepared. Check your connection and try again.",
   "Ver una idea de sitio": "Explore a website idea",

@@ -228,7 +228,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
       if (response.ok && result.concept) {
         setConcept(result.concept);
         setConceptMode("ai");
-      } else if (result.code === "NOT_CONFIGURED") {
+      } else if (result.code === "NOT_CONFIGURED" || response.status === 404 || response.status === 405) {
         setConcept(templateConcept(goal, pageType));
         setConceptMode("template");
         setGenerationNotice(t("La maqueta base está disponible; falta configurar el servicio de generación personalizada."));
@@ -242,8 +242,10 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
       }
       requestAnimationFrame(() => setResultOpen(true));
     } catch {
-      setGenerationError(t("No se pudo preparar la vista ahora. Revisa tu conexión e inténtalo de nuevo."));
-      setConcept(null);
+      setConcept(templateConcept(goal, pageType));
+      setConceptMode("template");
+      setGenerationNotice(t("El servicio de generación no respondió; puedes continuar con la maqueta y personalizar su diseño."));
+      requestAnimationFrame(() => setResultOpen(true));
     } finally {
       setGenerating(false);
     }
