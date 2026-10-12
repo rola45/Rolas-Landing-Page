@@ -156,6 +156,20 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
 .section-about .text-link:hover { color: #18368f; }
 .section-about .status-pulse { background: var(--blue-bright); box-shadow: 0 0 0 4px rgb(20 110 245 / 12%); }
 
+.technology-panel { position: relative; display: grid; grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr); align-items: center; gap: clamp(28px, 4.5vw, 64px); margin: clamp(58px, 7vw, 88px) auto 0; padding: clamp(26px, 4vw, 48px); overflow: hidden; border: 1px solid #262d38; border-radius: 6px; color: #f3f5f8; background: radial-gradient(ellipse at 0% 0%, rgb(20 110 245 / 17%), transparent 45%), linear-gradient(130deg, #171a20, #202630); box-shadow: 0 22px 58px rgb(19 31 49 / 13%); }
+.technology-panel::before { position: absolute; top: 0; left: 0; width: 84px; height: 3px; background: var(--blue-bright); content: ""; }
+.technology-panel-copy { max-width: 340px; min-width: 0; }
+.technology-panel-copy .eyebrow { margin-bottom: 17px; color: #b7c6dc; }
+.technology-panel-copy .eyebrow-dot { background: #68a1ff; box-shadow: 0 0 0 4px rgb(104 161 255 / 15%); }
+.technology-panel-copy h3 { margin: 0; color: #f6f7fa; font-family: var(--font-heading); font-size: clamp(30px, 3.3vw, 43px); font-weight: 540; letter-spacing: -.055em; line-height: 1.08; }
+.technology-panel-copy h3 span { color: #9cbcff; }
+.technology-panel-copy > p { margin: 16px 0 0; color: #c3cad4; font-size: 13px; line-height: 1.8; }
+.technology-panel-note { display: block; margin-top: 23px; color: #aeb8c7; font-size: 10px; letter-spacing: .015em; }
+.technology-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; min-width: 0; margin: 0; padding: 0; list-style: none; }
+.technology-card { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 66px; padding: 10px 11px; border: 1px solid #e2e6ec; border-radius: 4px; color: #242a33; background: #f8fafc; }
+.technology-card img { flex: 0 0 auto; width: 23px; height: 23px; object-fit: contain; filter: grayscale(1) brightness(.2); }
+.technology-card span { overflow: hidden; color: #29313b; font-size: 11px; font-weight: 650; letter-spacing: -.01em; text-overflow: ellipsis; white-space: nowrap; }
+
 .section-portfolio { color: var(--ink); background: #fff; }
 .section-portfolio .section-heading h2 { color: #181a1e; }
 .section-portfolio .section-heading h2 span { color: #737d8a; }
@@ -267,6 +281,10 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .faq-layout { grid-template-columns: 1fr; gap: 39px; }
   .faq-layout .section-heading { margin-bottom: 18px; }
   .section { padding-block: clamp(72px, 9vw, 112px); }
+  .technology-panel { grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: 28px; padding: 30px; }
+  .technology-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .technology-card { gap: 7px; padding-inline: 8px; }
+  .technology-card span { font-size: 10px; }
 }
 
 @media (max-width: 760px) {
@@ -281,6 +299,9 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .portrait-frame { width: min(100%, 370px); }
   .about-copy { max-width: 660px; }
   .service-group-equipment { padding: 23px 23px 7px; }
+  .technology-panel { grid-template-columns: 1fr; gap: 25px; }
+  .technology-panel-copy { max-width: 560px; }
+  .technology-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 540px) {
@@ -328,6 +349,14 @@ h1, h2, h3, h4, .brand-mark, .form-mark { font-family: var(--font-heading); }
   .about-coordinate { left: 0; }
   .about-copy > p { font-size: 13px; }
   .about-signature { margin-top: 23px; }
+  .technology-panel { gap: 21px; margin-top: 52px; padding: 23px 18px; }
+  .technology-panel-copy h3 { font-size: 31px; }
+  .technology-panel-copy > p { font-size: 12px; }
+  .technology-panel-note { margin-top: 16px; font-size: 9px; }
+  .technology-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .technology-card { min-height: 56px; gap: 9px; padding: 8px 10px; }
+  .technology-card img { width: 21px; height: 21px; }
+  .technology-card span { font-size: 10px; }
   .project-grid { grid-template-columns: 1fr; gap: 14px; }
   .project-image { height: 245px; }
   .project-copy { padding: 20px; }

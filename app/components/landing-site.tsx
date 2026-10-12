@@ -102,7 +102,36 @@ function Services({ content }: { content: SiteContent }) {
   </section>;
 }
 
-function About({ content, apiBase }: { content: SiteContent; apiBase: string }) {
+const technologies = [
+  { name: "Next.js", icon: "nextjs" }, { name: "React", icon: "react" },
+  { name: "TypeScript", icon: "typescript" }, { name: "Vite", icon: "vite" },
+  { name: "Tailwind CSS", icon: "tailwindcss" }, { name: "Python", icon: "python" },
+  { name: "FastAPI", icon: "fastapi" }, { name: "NestJS", icon: "nestjs" },
+  { name: "Prisma", icon: "prisma" }, { name: "PostgreSQL", icon: "postgresql" },
+  { name: "Cloudflare", icon: "cloudflare" }, { name: "Render", icon: "render" },
+  { name: "Docker", icon: "docker" }, { name: "Rust", icon: "rust" },
+  { name: "Tauri", icon: "tauri" }, { name: "Swift", icon: "swift" },
+];
+
+function TechnologyPanel({ assetBase }: { assetBase: string }) {
+  const base = assetBase.endsWith("/") ? assetBase : `${assetBase}/`;
+  return <div className="section-shell technology-panel" data-reveal aria-labelledby="technology-panel-title">
+    <div className="technology-panel-copy">
+      <Eyebrow>TECNOLOGÍAS EN PROYECTOS</Eyebrow>
+      <h3 id="technology-panel-title">Herramientas para<br /><span>cada tipo de reto.</span></h3>
+      <p>Una selección de tecnologías utilizadas en proyectos web, sistemas, infraestructura y aplicaciones de escritorio.</p>
+      <span className="technology-panel-note">La combinación se adapta a cada solución.</span>
+    </div>
+    <ul className="technology-grid" aria-label="Tecnologías utilizadas">
+      {technologies.map((technology) => <li className="technology-card" key={technology.name}>
+        <img src={`${base}assets/technology-icons/${technology.icon}.svg`} alt="" aria-hidden="true" loading="lazy" decoding="async" />
+        <span>{technology.name}</span>
+      </li>)}
+    </ul>
+  </div>;
+}
+
+function About({ content, apiBase, assetBase }: { content: SiteContent; apiBase: string; assetBase: string }) {
   return <section id="sobre-mi" className="section section-about">
     <div className="section-shell about-layout">
       <div className="about-art" data-reveal>
@@ -121,6 +150,7 @@ function About({ content, apiBase }: { content: SiteContent; apiBase: string }) 
         <a className="text-link" href="#contacto">Cuéntame qué necesitas <ArrowRight size={16} /></a>
       </div>
     </div>
+    <TechnologyPanel assetBase={assetBase} />
   </section>;
 }
 
@@ -174,14 +204,14 @@ function resolveMedia(path: string, apiBase: string) {
   return apiBase && path.startsWith("/media/") ? `${apiBase}${path}` : path;
 }
 
-export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad" }: { content: SiteContent; apiBase?: string; privacyHref?: string }) {
+export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad", assetBase = "/" }: { content: SiteContent; apiBase?: string; privacyHref?: string; assetBase?: string }) {
   const [liveContent, setLiveContent] = useState(content);
   const siteOrigin = apiBase || "https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site";
   useEffect(() => { setLiveContent(content); }, [content]);
   const sections = visibleSections(liveContent);
   const sectionComponents: Record<string, ReactNode> = {
     services: <Services content={liveContent} key="services" />,
-    about: <About content={liveContent} apiBase={apiBase} key="about" />,
+    about: <About content={liveContent} apiBase={apiBase} assetBase={assetBase} key="about" />,
     portfolio: <Portfolio content={liveContent} apiBase={apiBase} key="portfolio" />,
     process: <Process content={liveContent} key="process" />,
     faq: <Faq content={liveContent} key="faq" />,

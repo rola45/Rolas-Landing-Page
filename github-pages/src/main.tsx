@@ -61,7 +61,7 @@ function App() {
   }, [content, isPrivacyPage]);
   return isPrivacyPage
     ? <PrivacyPage content={content} />
-    : <LandingSite content={content} apiBase={API_BASE} privacyHref={`${BASE}privacy.html`} />;
+    : <LandingSite content={content} apiBase={API_BASE} privacyHref={`${BASE}privacy.html`} assetBase={BASE} />;
 }
 
 createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);

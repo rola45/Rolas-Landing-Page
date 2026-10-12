@@ -1,10 +1,10 @@
 import { getSiteContent } from "@/lib/site-content";
 import { corsHeaders, preflight } from "@/lib/public-api";
 
-export function OPTIONS(request: Request) { return preflight(request, "GET, OPTIONS"); }
+export function OPTIONS(request: Request) { return preflight(request, "GET, OPTIONS", true); }
 
 export async function GET(request: Request) {
-  const headers = corsHeaders(request, "GET, OPTIONS");
+  const headers = corsHeaders(request, "GET, OPTIONS", true);
   if (request.headers.get("origin") && !headers.has("Access-Control-Allow-Origin")) {
     return Response.json({ error: "Origen no autorizado." }, { status: 403 });
   }
