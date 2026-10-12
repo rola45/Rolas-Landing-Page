@@ -109,7 +109,7 @@ function Hero({ content, apiBase }: { content: SiteContent; apiBase: string }) {
         <div className="hero-actions">
           <a className="button button-electric" href="#contacto">{content.heroCta}<ArrowUpRight size={17} aria-hidden="true" /></a>
           <a className="button button-quiet" href="#servicios">{tx(language, "Conocer servicios")}<ArrowDown size={15} aria-hidden="true" /></a>
-          <a className="hero-idea-link" href="#idea-preview"><Sparkles size={14} aria-hidden="true" />{tx(language, "Ver una idea de sitio")}<ArrowRight size={14} aria-hidden="true" /></a>
+          <a className="hero-idea-link" href="#idea-preview"><Sparkles size={14} aria-hidden="true" /><span>{tx(language, "Explorar una idea de sitio")}</span><ArrowRight size={14} aria-hidden="true" /></a>
         </div>
       </div>
       <div className="hero-visual" data-parallax>
@@ -255,8 +255,10 @@ function FaqRow({ item, index }: { item: SiteContent["faqs"][number]; index: num
   </article>;
 }
 
-function Contact({ content, apiBase, privacyHref, draftMessage }: { content: SiteContent; apiBase: string; privacyHref: string; draftMessage: string }) {
+function Contact({ content, apiBase, privacyHref, draftMessage, assetBase }: { content: SiteContent; apiBase: string; privacyHref: string; draftMessage: string; assetBase: string }) {
   const language = useSiteLanguage();
+  const base = assetBase.endsWith("/") ? assetBase : `${assetBase}/`;
+  const quoteUrl = "https://rv-solutions-tecnologia.rolandovictorio.chatgpt.site/#contacto";
   const whatsapp = content.contact.whatsappNumber.replace(/\D/g, "");
   const contactMethods = [
     content.contact.email && { label: tx(language, "Correo electrónico"), value: content.contact.email, href: `mailto:${content.contact.email}`, icon: "mail" },
@@ -266,6 +268,7 @@ function Contact({ content, apiBase, privacyHref, draftMessage }: { content: Sit
   return <section id="contacto" className="section section-contact"><div className="section-shell contact-shell">
     <div className="contact-intro" data-reveal><Eyebrow>EL PRIMER PASO ES CONVERSAR</Eyebrow><h2>{tx(language, "¿Qué te gustaría")}<br /><span>{tx(language, "hacer posible?")}</span></h2><p>{tx(language, "Cuéntame sobre tu idea o el problema que necesitas resolver. Revisaré tu solicitud y podremos definir el siguiente paso.")}</p>
       {contactMethods.length > 0 && <div className="contact-methods">{contactMethods.map((item) => <a key={item.label} href={item.href} target={item.icon === "whatsapp" ? "_blank" : undefined} rel={item.icon === "whatsapp" ? "noreferrer" : undefined}><span>{item.icon === "whatsapp" ? <MessageCircle size={17} /> : item.icon === "phone" ? <MonitorCog size={17} /> : <Globe2 size={17} />}</span><span><small>{item.label}</small><b>{item.value}</b></span><ArrowUpRight size={15} className="contact-arrow" /></a>)}</div>}
+      <div className="quote-qr-card"><a className="quote-qr-image" href={quoteUrl} target="_blank" rel="noreferrer" aria-label={tx(language, "Abrir el formulario de cotización en otra ventana")}><img src={`${base}assets/qr-solicitar-cotizacion.svg`} alt={tx(language, "Código QR para abrir el formulario de cotización")} width="112" height="112" loading="lazy" decoding="async" /></a><div><span>{tx(language, "ACCESO RÁPIDO")}</span><b>{tx(language, "¿Vas a continuar desde otro dispositivo?")}</b><a href={quoteUrl} target="_blank" rel="noreferrer">{tx(language, "Escanea y solicita una cotización")} <ArrowUpRight size={13} /></a></div></div>
       <div className="contact-socials">{content.socials.filter((social) => social.visible && social.url).map((social) => <a key={social.id} href={social.url} target="_blank" rel="noreferrer">{social.label}<ArrowUpRight size={13} /></a>)}</div>
     </div>
       <div className="contact-form-wrap" data-reveal><div className="form-heading"><span className="form-number">01 / {tx(language, "CONTACTO")}</span><span className="form-mark">RV.</span></div><LeadForm language={language} apiBase={apiBase} privacyHref={privacyHref} initialMessage={draftMessage} services={[...content.services.digital, ...content.services.equipment].filter((item) => item.visible).map((item) => item.title)} /></div>
@@ -308,7 +311,7 @@ export function LandingSite({ content, apiBase = "", privacyHref = "/privacidad"
     portfolio: <Portfolio content={localizedContent} apiBase={apiBase} key="portfolio" />,
     process: <Process content={localizedContent} key="process" />,
     faq: <Faq content={localizedContent} key="faq" />,
-    contact: <Contact content={localizedContent} apiBase={apiBase} privacyHref={privacyHref} draftMessage={leadDraft} key="contact" />,
+    contact: <Contact content={localizedContent} apiBase={apiBase} privacyHref={privacyHref} draftMessage={leadDraft} assetBase={assetBase} key="contact" />,
   };
   const structuredData = { "@context": "https://schema.org", "@type": "Person", name: localizedContent.displayName, jobTitle: localizedContent.role, url: siteOrigin, brand: { "@type": "Brand", name: localizedContent.brandName }, sameAs: localizedContent.socials.filter((item) => item.visible && item.url).map((item) => item.url) };
   return <SiteLanguageContext.Provider value={language}>

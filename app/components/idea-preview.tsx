@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
-import { ArrowRight, Check, ChevronRight, LayoutTemplate, LoaderCircle, Monitor, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, LayoutTemplate, LoaderCircle, Monitor, Smartphone, Sparkles, Tablet } from "lucide-react";
 import { translateCopy, type SiteLanguage } from "@/lib/site-translation";
 
 type Goal = "present" | "inquiries" | "workflow";
 type VisualStyle = "minimal" | "technical" | "editorial" | "botanical" | "violet" | "coral" | "monochrome";
 type PreviewPage = "home" | "services" | "about" | "contact";
+type PreviewLayout = "editorial" | "visual" | "cards";
+type PreviewDevice = "desktop" | "tablet" | "mobile";
 type Concept = { headline: string; description: string; cta: string; recommendation: string; sections: { title: string; description: string }[] };
 
 const goals: { id: Goal; title: string; description: string }[] = [
@@ -30,6 +32,18 @@ const previewPages: { id: PreviewPage; label: string }[] = [
   { id: "services", label: "Servicios" },
   { id: "about", label: "Sobre el proyecto" },
   { id: "contact", label: "Contacto" },
+];
+
+const previewLayouts: { id: PreviewLayout; title: string; description: string }[] = [
+  { id: "editorial", title: "Editorial", description: "Titular amplio y lectura serena." },
+  { id: "visual", title: "Visual", description: "Composición asimétrica con foco gráfico." },
+  { id: "cards", title: "En bloques", description: "Tarjetas compactas y lectura directa." },
+];
+
+const previewDevices: { id: PreviewDevice; title: string }[] = [
+  { id: "desktop", title: "Escritorio" },
+  { id: "tablet", title: "Tableta" },
+  { id: "mobile", title: "Móvil" },
 ];
 
 const goalContent: Record<Goal, { headline: string; description: string; sections: string[]; recommendation: string }> = {
@@ -68,6 +82,8 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   const t = (value: string) => translateCopy(value, language);
   const [goal, setGoal] = useState<Goal | "">("");
   const [style, setStyle] = useState<VisualStyle>("minimal");
+  const [layout, setLayout] = useState<PreviewLayout>("editorial");
+  const [device, setDevice] = useState<PreviewDevice>("desktop");
   const [activePreviewPage, setActivePreviewPage] = useState<PreviewPage>("home");
   const [projectName, setProjectName] = useState("");
   const [audience, setAudience] = useState("");
@@ -81,6 +97,8 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   const [resultOpen, setResultOpen] = useState(false);
   const goalDetail = goal ? goalContent[goal] : undefined;
   const chosenStyle = visualStyles.find((option) => option.id === style) ?? visualStyles[0];
+  const chosenLayout = previewLayouts.find((option) => option.id === layout) ?? previewLayouts[0];
+  const chosenDevice = previewDevices.find((option) => option.id === device) ?? previewDevices[0];
   const name = projectName.trim() || t("Tu proyecto");
   const conceptHeadline = conceptMode === "ai" ? concept?.headline ?? "" : t(concept?.headline ?? "").replace("{name}", name);
   const conceptDescription = conceptMode === "ai" ? concept?.description ?? "" : t(concept?.description ?? "");
@@ -138,8 +156,8 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
   function requestQuote() {
     if (!goal || !concept) return;
     const summary = language === "en"
-      ? `Website idea: ${projectName.trim() || "My project"}. Goal: ${t(goals.find((option) => option.id === goal)?.title ?? "")}. Audience: ${audience.trim() || "not specified"}. Preferred style: ${t(chosenStyle.title)}. Suggested structure: ${concept.sections.map((section) => t(section.title)).join(", ")}.`
-      : `Idea de sitio web: ${projectName.trim() || "Mi proyecto"}. Objetivo: ${goals.find((option) => option.id === goal)?.title ?? ""}. Audiencia: ${audience.trim() || "por definir"}. Estilo preferido: ${chosenStyle.title}. Estructura sugerida: ${concept.sections.map((section) => section.title).join(", ")}.`;
+      ? `Website idea: ${projectName.trim() || "My project"}. Goal: ${t(goals.find((option) => option.id === goal)?.title ?? "")}. Audience: ${audience.trim() || "not specified"}. Preferred colors: ${t(chosenStyle.title)}. Page layout: ${t(chosenLayout.title)}. Priority screen: ${t(chosenDevice.title)}. Suggested structure: ${concept.sections.map((section) => t(section.title)).join(", ")}.`
+      : `Idea de sitio web: ${projectName.trim() || "Mi proyecto"}. Objetivo: ${goals.find((option) => option.id === goal)?.title ?? ""}. Audiencia: ${audience.trim() || "por definir"}. Paleta preferida: ${chosenStyle.title}. Diseño de página: ${chosenLayout.title}. Pantalla prioritaria: ${chosenDevice.title}. Estructura sugerida: ${concept.sections.map((section) => section.title).join(", ")}.`;
     onRequestQuote(summary);
   }
 
@@ -203,12 +221,33 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
         </div> : <div key={`${goal}-${style}`} className="idea-generated t-panel-slide" data-open={resultOpen} data-style={style}>
           <div className="idea-preview-label"><span><i />{conceptMode === "ai" ? t("VISTA PERSONALIZADA") : t("VISTA CONCEPTUAL")}</span><span>{t("EJEMPLO, NO ES UN PROYECTO REAL")}</span></div>
           {generationNotice && <p className="idea-notice" role="status">{generationNotice}</p>}
-          <div className="idea-browser-frame">
+          <div className="idea-preview-controls">
+            <div className="idea-layout-picker">
+              <span className="idea-layout-picker-label">{t("DISEÑO DE PÁGINA")}</span>
+              <div className="idea-layout-options" role="group" aria-label={t("Variantes de diseño")}>
+                {previewLayouts.map((option) => <button key={option.id} type="button" aria-pressed={layout === option.id} title={t(option.description)} onClick={() => setLayout(option.id)}>
+                  <span className="idea-layout-glyph" data-layout={option.id} aria-hidden="true"><i /><i /><i /><i /></span>
+                  <span><b>{t(option.title)}</b><small>{t(option.description)}</small></span>
+                </button>)}
+              </div>
+            </div>
+            <div className="idea-device-picker">
+              <span className="idea-layout-picker-label">{t("VISTA ADAPTABLE")}</span>
+              <div className="idea-device-options" role="group" aria-label={t("Tamaño de vista previa")}>
+                {previewDevices.map((option) => <button key={option.id} type="button" aria-pressed={device === option.id} title={t(option.title)} onClick={() => setDevice(option.id)}>
+                  {option.id === "desktop" ? <Monitor size={13} aria-hidden="true" /> : option.id === "tablet" ? <Tablet size={13} aria-hidden="true" /> : <Smartphone size={13} aria-hidden="true" />}
+                  <span>{t(option.title)}</span>
+                </button>)}
+              </div>
+            </div>
+          </div>
+          <div className="idea-device-stage">
+          <div className="idea-browser-frame" data-device={device}>
             <div className="idea-browser-top"><span><i /><i /><i /></span><b>{t("VISTA DEL SITIO")}</b><span>↗</span></div>
             <div className="idea-page-tabs" role="group" aria-label={t("Páginas de ejemplo")}>
               {previewPages.map((page) => <button key={page.id} type="button" aria-pressed={activePreviewPage === page.id} onClick={() => setActivePreviewPage(page.id)}>{previewPageLabel(page.id)}</button>)}
             </div>
-            <div className="idea-browser-page" style={{
+            <div className="idea-browser-page" data-layout={layout} data-device={device} style={{
               "--demo-paper": chosenStyle.theme.paper,
               "--demo-white": chosenStyle.theme.surface,
               "--demo-ink": chosenStyle.theme.ink,
@@ -246,6 +285,7 @@ export function IdeaPreview({ language, apiBase, onRequestQuote }: { language: S
                 <div className="idea-demo-form" role="group" aria-label={t("Formulario de ejemplo")}><b>{t("Formulario de contacto")}</b><span>{t("Nombre")}</span><i /><span>{t("Correo electrónico")}</span><i /><span>{t("¿Qué necesitas?")}</span><i className="idea-demo-form-message" /><strong>{previewContactCta}</strong><small>{t("Vista de ejemplo, no envía información.")}</small></div>
               </section>}
             </div>
+          </div>
           </div>
           <div className="idea-recommendation">
             <div className="idea-recommendation-heading"><span><Sparkles size={15} />{t("RECOMENDACIÓN INICIAL")}</span><span className="idea-style-chip">{t(chosenStyle.title)}</span></div>
